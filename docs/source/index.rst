@@ -15,5 +15,5 @@ documentation for details.
    :maxdepth: 2
    :caption: Contents:
    
-   hello_readthedocs
+   hello_readthedocs.md
 
