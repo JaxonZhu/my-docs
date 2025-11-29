@@ -41,6 +41,8 @@ Get in touch
 - GitHub: https://github.com/JaxonZhu
 - Red-Notes: RetrievalAG
 
+================================
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
