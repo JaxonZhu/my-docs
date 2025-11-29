@@ -47,5 +47,5 @@ Get in touch
    :maxdepth: 2
    :caption: Contents:
    
-   hello_readthedocs
+   Evo-1
 
