@@ -48,6 +48,7 @@ Get in touch
    :caption: VLA works:
    
    index-Evo-1-HEAD
+   index-NORA-HEAD
 
    :caption: Engineering:
 
