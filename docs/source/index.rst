@@ -47,5 +47,5 @@ Get in touch
    :maxdepth: 2
    :caption: Contents:
    
-   Evo-1
+   Evo-1-HEAD
 
