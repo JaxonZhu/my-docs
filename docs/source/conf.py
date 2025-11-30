@@ -22,6 +22,8 @@ extensions = [
 
 myst_enable_extensions = [
     "colon_fence",
+    "amsmath",
+    "dollarmath",
 ]
 
 # source_suffix = {
