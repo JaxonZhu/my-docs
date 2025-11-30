@@ -14,3 +14,5 @@ Evo-1 是 InternViT-300M + Qwen2.5-0.5B ，而 SmolVLA 是 SigLIP + SmolLM 。�
    :caption: Contents of Evo-1:
 
    Evo-1-paper
+   Evo-1-aloha-finetune
+   
