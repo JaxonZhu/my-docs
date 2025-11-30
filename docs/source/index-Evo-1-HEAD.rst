@@ -1,5 +1,9 @@
-Evo-1: Lightweight Vision-Language-Action Model with Preserved Semantic Alignment
+Evo-1
 ===============
+
+论文标题
+
+Evo-1: Lightweight Vision-Language-Action Model with Preserved Semantic Alignment
 
 可以说 Evo-1 相当于国内版 SmolVLA 了，点赞~
 	

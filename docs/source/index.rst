@@ -47,7 +47,7 @@ Get in touch
    :maxdepth: 2
    :caption: VLA works:
    
-   Evo-1-HEAD
+   index-Evo-1-HEAD
 
    :caption: Engineering:
 
