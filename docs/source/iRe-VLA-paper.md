@@ -42,14 +42,17 @@ RL 范式引入 VLA 后训练存在两个问题：（1）任务普遍具有长�
 **Reinforcement Learning**
 
 采用 POMDP 建模任务，其中一个任务可表示为
+
 $$
  M = (S, A, P_T, R, \gamma, O, P_E) 
 $$
-其中，$$S$$ 和 $$A$$ 分别表示状态空间和动作空间，$$O$$ 表示机器人观测，例如视觉图像。$$P_T : S \times A \times S \rightarrow [0, 1]$$ 表示状态转移概率函数，$$R : S \times A \times S \rightarrow \mathbb{R}$$ 为任务的奖励函数。在机器人任务中，奖励信号通常是稀疏的，因此论文中考虑二值奖励，当机器人成功完成任务时 $$R = 1$$，否则 $$R = 0$$。$$P_E : S \times O \rightarrow [0, 1]$$ 表示观测的初始概率。  
 
-策略 $$\pi_\theta : O \rightarrow A$$ 表示一个基于参数 $$\theta$$ 的动作空间概率分布。
+其中，$S$ 和 $A$ 分别表示状态空间和动作空间，$O$ 表示机器人观测，例如视觉图像。$P_T : S \times A \times S \rightarrow [0, 1]$ 表示状态转移概率函数，$R : S \times A \times S \rightarrow \mathbb{R}$ 为任务的奖励函数。在机器人任务中，奖励信号通常是稀疏的，因此论文中考虑二值奖励，当机器人成功完成任务时 $R = 1$，否则 $R = 0$。$P_E : S \times O \rightarrow [0, 1]$ 表示观测的初始概率。  
 
-参数 $$\theta$$ 的优化目标是最大化带折扣因子的期望回报：
+策略 $\pi_\theta : O \rightarrow A$ 表示一个基于参数 $\theta$ 的动作空间概率分布。
+
+参数 $\theta$ 的优化目标是最大化带折扣因子的期望回报：
+
 $$
 J(\theta) = \mathbb{E}_{(s_0,o_0,a_0),(s_1,o_1,a_1),... \sim p_\theta} \left[ \sum_t \gamma^t R(s_t, a_t) \right]
 $$
@@ -58,12 +61,13 @@ $$
 
 VLMs 模型大致可以分为两大类：**表征学习模型**（如 CLIP ），以及**生成式模型**（如 Blip-2 和 InstructBlip）。
 
-形式上，生成式 VLMs 从以下条件分布中采样 token 序列 $$x_{1:K}$$：
+形式上，生成式 VLMs 从以下条件分布中采样 token 序列 $x_{1:K}$：
+
 $$
 x_{1:K} \sim p(x_{1:K} \mid I, c)
 $$
 
-其中条件为输入图像 $$I$$ 与指令 $$c$$。
+其中条件为输入图像 $I$ 与指令 $c$。
 
 **IV. METHOD**
 
@@ -80,11 +84,13 @@ $$
 **Stage {0}: 使用专家数据微调 VLA**
 
 使用 $D_e=\{(o_1,l_1,a_1),(o_2,l_2,a_2),...,(o_i,l_i,a_i)\}$ 微调 $\pi_{\theta,\phi}$ VLA ：
+
 $$
 \begin{equation}\label{stage0}
     J^0(\theta,\phi)=\mathbb{E}_{(o,l,a)\sim D_e}\left[\left|\left|\pi_{\theta,\phi}(o,l)-a \right|\right|^2_2\right]
 \end{equation}
 $$
+
 $\pi^0_{\theta,\phi}$ 的质量于专家演示数据的规模和质量高度相关 $\longrightarrow$ 是 valuable starting point
 
 使用 $\pi^0_{\theta,\phi}$ 来进行 “奇数阶段” 的 RL 
@@ -94,16 +100,19 @@ $\pi^0_{\theta,\phi}$ 的质量于专家演示数据的规模和质量高度相�
 引入了一个与 action head 结构相似的 critic head ，但其输出维度被设定为一维。
 
 在此阶段，将 VLM 参数 $\theta$ 冻结，因此仅对动作头的参数 $\phi$ 进行优化。
+
 $$
 \begin{equation}\label{stage1}
     J^1(\phi)=\mathbb{E}_{\big((s_0,o_0,a_0),(s_1,o_1,a_1),...\big)\sim p_{\phi}} \left[ \sum_t \gamma^t R(o^t,a^t) \right]
 \end{equation}
 $$
+
 完成 online rl 后，机器人会发现新的轨迹 $x_i$ 来解决新任务。随后，将**这些成功轨迹**整合到在线数据集 $D_{RL} $ 中，即 $D_{RL}=D_{RL} \cup x_i$ 。
 
 **Stage {正偶数}: 使用 专家数据 + 在线数据集 微调 VLA**
 
 避免遗忘掉之前的专家数据，因此 SFT 训练目标将被调整：
+
 $$
 \begin{equation}\label{stage2}
     J^2(\theta,\phi)=\mathbb{E}_{(o,l,a)\sim D_e \cup D_{RL}}\left[\left|\left|\pi_{\theta,\phi}(o,l)-a \right|\right|^2_2\right]
