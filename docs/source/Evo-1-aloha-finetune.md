@@ -1,4 +1,4 @@
-# Evo-1 在 ALOHA-sim 仿真环境 insertion 任务上微调表现
+# Evo-1 ALOHA-sim insertion 任务 微调表现
 
 看到这个 Evo-1 VLA 觉得很 nice 想自己试一试客制任务微调，但是自己数据集才刚开始采，所以先跑这个仿真任务试一试。
 
