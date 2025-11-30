@@ -14,7 +14,11 @@ release = '0.1.0'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ['sphinx_markdown_tables', "myst_parser"]
+extensions = [
+    'sphinx_markdown_tables', 
+    "myst_parser",
+    'sphinx.ext.mathjax',   # 添加数学公式支持
+]
 
 myst_enable_extensions = [
     "colon_fence",
