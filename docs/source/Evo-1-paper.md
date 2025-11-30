@@ -1,6 +1,6 @@
-# Evo-1: Lightweight Vision-Language-Action Model with Preserved Semantic Alignment
+# Evo-1 Original Paper
 
-## Abstract
+**Abstract**
 
 问题（1）VLA 参数多 + 依赖机器人数据预训练 $\longrightarrow$ 训练成本高 + 现实推理能力受限（2）常规训练范式导致 VLM backbone 的感知能力降级了，存在过拟合现象并削弱了下游任务的泛化能力。
 
@@ -11,7 +11,7 @@
 
 0.77B 模型：仿真 MetaWorld / RoboTwin 评估，现实世界 $78\%$ 成功率
 
-## 1. Introduction
+**1. Introduction**
 
 作者提出现存 VLA 的三个现象（1）巨量参数导致训练 / 推理 GPU 显存占用与计算消耗大 + 部署低频（2）端到端训练削弱视觉表征空间（3）大量的机器人数据 OXE / DROID 来**预训练**。
 
@@ -25,20 +25,20 @@
 
 ====> 大量 robot data 预训练：作者提到，<font color=red>通过保留继承的语义空间，该模型**无需机器人数据预训练**即可展现出强大的泛化能力和优异的性能表现</font>。
 
-## 2. Related Work
+**2. Related Work**
 
-### Large-Scale Vision-Language-Action Models
+**Large-Scale Vision-Language-Action Models**
 
-### Lightweight and Efficient Vision-Language-Action Models
+**Lightweight and Efficient Vision-Language-Action Models**
 
 - TinyVLA：提出了低于十亿参数量级的 VLA ，该框架将轻量级 VL backbone 网络与 diffusion-based 的策略解码器相结合
 - SmolVLA：采用 SmolVLM-2 作为主干网络，结合紧凑型 flow-matching 动作专家，同时运用 layer skipping / token reduction 和 asynchronous inference 等等技术。
 
 ====> 在复杂操作场景中，轻量级 VLA 整体任务表现和系统鲁棒性仍然较弱。
 
-## 3. Method
+**3. Method**
 
-### 3.1. Overview of Evo-1 Architecture
+**3.1. Overview of Evo-1 Architecture**
 
 > ![](images/Evo-1/Evo-1-1.png)
 >
@@ -51,9 +51,9 @@ a_t = f_{\text{Evo-1}}\!\left(\{ I_t^i \}_{i=1}^{N}, L_t, s_t; \theta \right),
 \end{equation}
 $$
 
-## 3.2. Model Design
+**3.2. Model Design**
 
-### 3.2.1. Vision-Language Backbone
+**3.2.1. Vision-Language Backbone**
 
 视觉编码器采用 InternViT-300M 模型，该模型是通过**层级负余弦相似度损失**从 InternViT-6B 中提炼出的轻量级 Transformer 。每个 RGB 观测数据集 $\{ I_t^i \}_{i=1}^{N}$ 会被调整为 $448\times448$ 尺寸，并通过**像素重排下采样**操作，将视觉 token 数量减少 4 倍。
 
@@ -77,7 +77,7 @@ VLM 输出的 $z_t$ 表示融合的多模态表征，该表征同时编码视觉
 
 为使预训练的 VLM 更好地适应具身视觉运动任务，仅保留语言分支的前 14 层 $\longrightarrow$ 参考 SmolVLA 中间层在视觉与语言特征间具有更强的跨模态对齐能力，因此更适用于视觉运动控制。
 
-### 3.2.2. Cross-modulated Diffusion Transformer
+**3.2.2. Cross-modulated Diffusion Transformer**
 
 Evo-1 采用条件去噪模块作为 action-expert ，通过 “视觉-语言” 主干网络生成的融合多模态嵌入来预测连续控制动作。
 
@@ -97,21 +97,21 @@ $$
 $$
 推理过程：$\hat{A}_t = f_{\text{AE}}(z_t, s_t, A_t^\tau)$ 来生成 action chunk $\hat{A}_t = [\hat{a}_t, \hat{a}_{t+1}, \dots, \hat{a}_{t+H-1}]$ 
 
-### 3.2.3. Integration Module
+**3.2.3. Integration Module**
 
 为完整保留感知嵌入与机器人本体感知状态的信息，选择将 $z_t$ 与机器人状态 $s_t$ 直接拼接，而非投射至共享嵌入空间。这种拼接特征作为 action-expert 网络中 Transformer 模块的键值输入，为动作生成提供了全局且信息完整的上下文支持。
 
-## 3.3. Two-Stage Training Procedure
+**3.3. Two-Stage Training Procedure**
 
-### Stage 1: Action Expert Alignment
+**Stage 1: Action Expert Alignment**
 
 冻结 VLM 骨干，在随机数值初始化网络权重下训练 action expert 和集成模块 $\longrightarrow$ 通过逐步调整模型与多模态嵌入空间的对齐，避免将噪声梯度反向传播至预训练主干网络 $\longrightarrow$ 模型能在 VLM 特征与 action expert 之间建立协调一致的对齐关系
 
-### Stage 2: Full-scale Fine-Tuning
+**Stage 2: Full-scale Fine-Tuning**
 
 解冻 VLM backbone 网络，并对整个架构进行全面微调。这一阶段实现了预训练 “视觉-语言” 主干网络与 action-expert 的联合优化，确保更深层次的整合，从而更好地适应各类操作任务。
 
-### Preserving Multimodal Semantics
+**Preserving Multimodal Semantics**
 
 为验证训练策略的优势，对比了基于 Evo-1 进行两阶段训练 InternVL3-1B 与 OpenVLA 中使用的 Prismatic-7B VLM 生成的图文注意力映射图。
 
@@ -119,13 +119,13 @@ $$
 
 经过机器人操作数据训练后，InternVL3-1B 的嵌入向量仍保持清晰的结构特征和语义连贯的注意力区域，而 Prismatic-7B 则出现显著的语义漂移和对齐效果下降。这一结果表明，训练流程有效保留了原始语义空间，使模型在适应下游控制任务时仍能保持强大的视觉语言理解能力。
 
-## 4. Experiments
+**4. Experiments**
 
-### 4.1. Simulation Experiments
+**4.1. Simulation Experiments**
 
 ![](images/Evo-1/Evo-1-3.png)
 
-#### 4.1.1. Meta-World Benchmark
+**4.1.1. Meta-World Benchmark**
 
 【实验设置】在实验中，采用 Meta-World 官方的轨迹生成脚本构建数据集，每个任务包含 50 个演示样本，通过十次独立测试评估各任务表现，并汇总五次独立运行的平均结果。
 
@@ -133,7 +133,7 @@ $$
 
 【实验结论】（1）Evo-1 在 Meta-World 基准测试中表现最佳，成为现有 VLA 中的 SOTA （2）Evo-1在四个难度等级（简单、中等、困难和非常困难）中始终优于所有 baseline 。
 
-#### 4.1.2. LIBERO Benchmark
+**4.1.2. LIBERO Benchmark**
 
 【实验设置】十次独立测试评估各任务表现，并汇总五次独立运行的平均结果。
 
@@ -141,7 +141,7 @@ $$
 
 【实验结论】Evo-1 的平均成功率高达 $94.8\%$ ，不仅超越了 $\pi_0$ 的 $94.2\%$ 和 SmolVLA 的 $88.8\%$ 等基准模型，更在四大任务类别（空间、物体、目标、长任务）中保持稳定优异表现。尤其在长任务领域的 $92.3\%$ ，其稳健性表现尤为突出，而多数现有视觉语言模型在此类任务中均出现显著性能下滑。
 
-#### 4.1.3. RoboTwin Benchmark
+**4.1.3. RoboTwin Benchmark**
 
 【实验设置】在评估过程中，每项 policy 都会在两种难度设置下进行 100 次测试，从而全面评估其在不同操作场景中的鲁棒性和泛化能力。
 
@@ -149,7 +149,7 @@ $$
 
 【实验结论】在 RoboTwin 测试套件中，Evo-1 展现出最佳整体表现，平均成功率高达 $37.8\%$ ，超越了此前 SOTA 模型 $\pi_0$ $30.9\%$ 的纪录。
 
-### 4.2. Real-World Experiments
+**4.2. Real-World Experiments**
 
 xArm6 机械臂 + 并行夹爪
 
@@ -170,15 +170,15 @@ Evo-1 在四项实际任务中平均成功率达到 $78\%$ ，显著优于 SmolV
 
 参数量比 SmolVLA 大，但是推理频率比 SmolVLA 还快。
 
-### 4.3. Generalization Experiments
+**4.3. Generalization Experiments**
 
 ![](images/Evo-1/Evo-1-6.png)
 
 ![](images/Evo-1/Evo-1-7.png)
 
-### 4.4. Ablation Study
+**4.4. Ablation Study**
 
-#### 4.4.1. Integration Module Analysis
+**4.4.1. Integration Module Analysis**
 
 ![](images/Evo-1/Evo-1-8.png)
 
@@ -192,7 +192,7 @@ Evo-1 在四项实际任务中平均成功率达到 $78\%$ ，显著优于 SmolV
 
 ![](images/Evo-1/Evo-1-9.png)
 
-#### 4.4.2. Training Paradigm Comparison
+**4.4.2. Training Paradigm Comparison**
 
 baseline：单阶段 $\longrightarrow$ 直接联合训练 VLM 、集成模块和动作专家，且不采用任何冻结策略
 
@@ -200,4 +200,4 @@ baseline：单阶段 $\longrightarrow$ 直接联合训练 VLM 、集成模块和
 
 ![](images/Evo-1/Evo-1-11.png)
 
-## 5. Conclusion
+**5. Conclusion**
