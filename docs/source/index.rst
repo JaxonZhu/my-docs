@@ -48,6 +48,7 @@ Get in touch
    index-Evo-1-HEAD
    index-NORA-HEAD
    index-HiORS-HEAD
+   index-iRe-VLA-HEAD
 
    :caption: Engineering:
 
