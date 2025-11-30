@@ -10,7 +10,7 @@ JaxonZhu-Documents documentation
    :alt: This is me.
    :width: 300px
 
-你好，我是 JaxonZhu，一名具身算法工程师。
+你好, 我是 JaxonZhu, 一名具身算法工程师.
 
 我目前专注于：
 
@@ -28,9 +28,9 @@ JaxonZhu-Documents documentation
 Current Focus
 -------------
 
-π-x 系列 VLA: π₀ / π₀.5 / π₀.6
+$\pi$-x VLA: $\pi_{0}$ / $\pi_{0.5}$ / $\pi_{0.6}$
 
-OpenVLA-OFT 系 VLA：VLA-Adapter
+OpenVLA-OFT-based VLA: OpenVLA-OFT / VLA-Adapter
 
 Small-scale VLA: NORA / NORA-1.5 / Evo-1 / X-VLA / Smol-VLA
 
