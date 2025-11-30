@@ -62,9 +62,7 @@ $$
 
 > 像素重排：当一个图像 / 特征图的形状是：$X \in \mathbb{R}^{C \times H \times W}$ ，那么重排后的形状是：
 > 
-> $$
-> \text{PixelUnshuffle}(X)\in R^{(C\cdot r^2)\times (H/r)\times (W/r)} 
-> $$
+> $\text{PixelUnshuffle}(X)\in R^{(C\cdot r^2)\times (H/r)\times (W/r)}$
 > 
 > 而 ViT 的视觉 token 数量是：$N = \frac{H}{p} \cdot \frac{W}{p}$ ，因此像素重排前后会导致视觉 token 数量降低 4 倍。token 数量由 patch 数决定，而 patch embedding 对**空间维度**进行划分，通道 $C\cdot r^{2}$ 会被投影到 $d$ 维，不影响 token 数。Transformer 的复杂度是：$O(N^2)$ 因此视觉 token 数减少 4 倍，注意力计算减少 **4² = 16 倍** 。
 
