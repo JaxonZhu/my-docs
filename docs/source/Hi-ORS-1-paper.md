@@ -108,7 +108,7 @@ $$
 
    ====> <font color=blue>这句话的理解是：无论是基于扩散过程还是流匹配的 VLA ，使用 RL 只是对扩散 / 流的最终**结果**进行监督，因此忽略了扩散 / 流**过程**的监督，而不能理解成监督了 $s_t$, $a_t$ 而忽视了前面 $t-1$ 时刻的估计。</font>
 
-<img src="C:\Users\aw\AppData\Roaming\Typora\typora-user-images\image-20251104233651891.png" style="zoom:50%;" />
+![](images/Hi-ORS/Hi-ORS-1.png)
 
 **B. Rejection Sampling for Robotic Manipulation**
 
@@ -196,7 +196,7 @@ $$
 
 **A. Real-world Experiments**
 
-<img src="C:\Users\aw\Desktop\工作学习\论文合集-VLA\Hi-ORS-2.png" style="zoom:75%;" />
+![](images/Hi-ORS/Hi-ORS-2.png)
 
 HIL-SERL: 不稳定性伴随振荡回归随着训练数据量的增加
 
@@ -212,13 +212,13 @@ Hi-ORS 算法在 test-time scaling 方面表现突出。这种持续优化的趋
 
 在本小节中，采用课程数据收集策略评估 Hi-ORS 的空间泛化能力。首先通过人工干预将物体<u>初始定位在棋盘格点位</u>，收集相关数据，并在测试场景中将<u>物体置于棋盘格中间区域</u>进行 Hi-ORS 测试。随后采用不同训练和测试场景进行类似实验。
 
-<img src="C:\Users\aw\Desktop\工作学习\论文合集-VLA\Hi-ORS-3.png" style="zoom:50%;" />
+![](images/Hi-ORS/Hi-ORS-3.png)
 
 即使在物体远离机器人重置起始位置的极端情况下，Hi-ORS 仍展现出强大的空间泛化能力。这种泛化特性得益于 Hi-ORS 的在线数据收集特性，能够快速调整操作策略。
 
 **D. Error Recovery**
 
-<img src="C:\Users\aw\Desktop\工作学习\论文合集-VLA\Hi-ORS-4.png" style="zoom:75%;" />
+![](images/Hi-ORS/Hi-ORS-4.png)
 
 **E. Ablation Studies**
 
