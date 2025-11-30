@@ -45,11 +45,11 @@ Get in touch
 
 .. toctree::
    :maxdepth: 2
-   :caption: VLA:
+   :caption: VLA works:
    
    Evo-1-HEAD
 
    :caption: Engineering:
 
-   
+
 

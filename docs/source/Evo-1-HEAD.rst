@@ -10,7 +10,7 @@ Evo-1: Lightweight Vision-Language-Action Model with Preserved Semantic Alignmen
 Evo-1 是 InternViT-300M + Qwen2.5-0.5B ，而 SmolVLA 是 SigLIP + SmolLM 。在 SmolVLA 中也用到了令牌重排技术来减少视觉 token 数量，但是 SmolVLA 的做法更激进。SmolVLA 中取 VLM 解码器的前一半，Evo-1 中同样使用语言解码器的前中部分，同时也在消融实验中做了比较。这俩 VLA 的推理占用显存都在 2.0G 左右，可操作性很高。
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 1
+   :caption: Contents of Evo-1:
 
    Evo-1-paper
