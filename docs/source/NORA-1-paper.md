@@ -1,4 +1,6 @@
-# NORA: A SMALL OPEN-SOURCED GENERALIST VISION LANGUAGE ACTION MODEL FOR EMBODIED TASKS
+# NORA 论文阅读 代码分析
+
+NORA: A Small Open-sourced Generalist Vision Language Action Model For Embodied Tasks
 
 **ABSTRACT**
 
@@ -44,7 +46,7 @@ VLA 主要分为 2 类：连续动作模型采用扩散过程生成连续动作�
 
 **3.1 ARCHITECTURE**
 
-模型 $$M$$ 的输入由自然语言任务指令 $$c$$ 和时间 $$t$$ 时刻的视觉观测帧组成，视觉观测包含 $$n$$ 帧图像：$$o_t = [I^t_1, \ldots, I^t_n]$$ ，它们被拼接形成整体输入：$$X_t = [o_t, c]$$ 。
+模型 $M$ 的输入由自然语言任务指令 $c$ 和时间 $t$ 时刻的视觉观测帧组成，视觉观测包含 $n$ 帧图像：$o_t = [I^t_1, \ldots, I^t_n]$ ，它们被拼接形成整体输入：$X_t = [o_t, c]$ 。
 
 这部分代码在 `nora/inference/nora.py` 中的 `Nora.inference()` 方法中体现：
 
@@ -86,12 +88,14 @@ VLA 主要分为 2 类：连续动作模型采用扩散过程生成连续动作�
 
 ---
 
-NORA 利用一个预训练的视觉语言模型 $M$ 来<font color=red>**自回归地**</font>预测一个 action chunk ，该动作块编码了从时间 $$(t)$$ 到 $$(t+N)$$ 的未来动作，记作 $$a_{t:t+N} = [a_t, \ldots, a_{t+N}]$$ 。动作块 $$a_{t:t+N}$$ 被表示为一个离散 token 序列：$$R = [r_t, \ldots, r_{t+N}]$$ 这些 token 在训练阶段通过 ***FAST+* 机器人 tokenizer** 编码得到。
+NORA 利用一个预训练的视觉语言模型 $M$ 来<font color=red>**自回归地**</font>预测一个 action chunk ，该动作块编码了从时间 $(t)$ 到 $(t+N)$ 的未来动作，记作 $a_{t:t+N} = [a_t, \ldots, a_{t+N}]$ 。动作块 $a_{t:t+N}$ 被表示为一个离散 token 序列：$R = [r_t, \ldots, r_{t+N}]$ 这些 token 在训练阶段通过 ***FAST+* 机器人 tokenizer** 编码得到。
 
-VLM $$M$$ 通过自回归方式生成该动作块对应的 token 序列 $$R = [r_t, \ldots, r_{t+N}]$$，条件为输入 $$X_t$$：
+VLM $M$ 通过自回归方式生成该动作块对应的 token 序列 $R = [r_t, \ldots, r_{t+N}]$，条件为输入 $X_t$：
+
 $$
 R = r_{t:t+N} \sim M_\theta(r \mid c, o_t)=M_\theta(r \mid X_t) \tag{1}
 $$
+
 在代码中直接调 Transformer 库的推理函数就产生了：
 
 ```python
@@ -106,6 +110,7 @@ generated_ids = self.model.generate(**inputs)
 $$
 a_{t:t+N} \leftarrow \text{FAST+}_{\text{decode}}(r_{t:t+N}) \tag{2}
 $$
+
 这个在代码中直接调用 FAST 分词器把离散 action token 解码成连续动作：
 
 找到离散 action token 开始的地方 $\longrightarrow$ 映射回 FAST 分词器使用的 token 范围 $\longrightarrow$ 解码成动作 $\longrightarrow$ 根据配置信息进行反归一化处理 $\longrightarrow$ 输出最终动作
@@ -160,7 +165,7 @@ return np.array(unnorm_actions[0])
 
   这个体现在  `nora/inference/nora.py` 中的 `Nora` 类开头部分 `_ACTION_TOKEN_MIN = 151665` 和 `_ACTION_TOKEN_MAX = 153712` 两个常量体现，二者大减小就是 2047 ，包括自身就是 2048 个 token 了。
 
-- 将视觉观测 $$o_t$$ 设置为**单帧图像输入**
+- 将视觉观测 $o_t$ 设置为**单帧图像输入**
 
   这个在代码中的图像和文本映射到同一个 prompt 模板中体现，在模板中只有一张图像的槽位。
 
