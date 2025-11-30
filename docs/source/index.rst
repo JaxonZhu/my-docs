@@ -28,7 +28,7 @@ JaxonZhu-Documents documentation
 Current Focus
 -------------
 
-$\pi$-x VLA: $\pi_{0}$ / $\pi_{0.5}$ / $\pi_{0.6}$
+:math:`\pi`-x VLA: :math:`\pi_{0}` / :math:`\pi_{0.5}` / :math:`\pi_{0.6}`
 
 OpenVLA-OFT-based VLA: OpenVLA-OFT / VLA-Adapter
 
