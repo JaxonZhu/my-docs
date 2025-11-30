@@ -45,6 +45,7 @@
 > 输入的 RGB 图像和语言指令首先被一组紧凑的 VLM backbones （Intern ViT-300M + Qwen2.5-0.5B）编码，双模态融合后的 “视觉-语言” 表征和机器人本体数据在优化过的集成模块上作进一步对齐，最后经由交叉调制的 Diffusion Transformers 进行处理生成 action chunk 。
 
 多视角观测 $\{ I_t^i \}_{i=1}^{N}$ + 语言指令 $L_t$ + 机器人本体状态 $s_t$ $\longrightarrow$ 可学习参数为 $\theta$ 的 Evo-1 前向计算 $\longrightarrow$ 动作 $a_t$
+
 $$
 \begin{equation}
 a_t = f_{\text{Evo-1}}\!\left(\{ I_t^i \}_{i=1}^{N}, L_t, s_t; \theta \right),
@@ -55,24 +56,28 @@ $$
 
 **3.2.1. Vision-Language Backbone**
 
-视觉编码器采用 InternViT-300M 模型，该模型是通过**层级负余弦相似度损失**从 InternViT-6B 中提炼出的轻量级 Transformer 。每个 RGB 观测数据集 $\{ I_t^i \}_{i=1}^{N}$ 会被调整为 $448\times448$ 尺寸，并通过**像素重排下采样**操作，将视觉 token 数量减少 4 倍。
+视觉编码器采用 InternViT-300M 模型，该模型是通过 **层级负余弦相似度损失** 从 InternViT-6B 中提炼出的轻量级 Transformer 。每个 RGB 观测数据集 $\{ I_t^i \}_{i=1}^{N}$ 会被调整为 $448\times448$ 尺寸，并通过**像素重排下采样**操作，将视觉 token 数量减少 4 倍。
 
 > 层级负余弦相似度：让**学生模型**每一层的表示向**教师模型**靠拢，但匹配的指标是 “特征方向一致” ，即最大化余弦相似度。
 
 > 像素重排：当一个图像 / 特征图的形状是：$X \in \mathbb{R}^{C \times H \times W}$ ，那么重排后的形状是：
+> 
 > $$
 > \text{PixelUnshuffle}(X)\in R^{(C\cdot r^2)\times (H/r)\times (W/r)} 
 > $$
+> 
 > 而 ViT 的视觉 token 数量是：$N = \frac{H}{p} \cdot \frac{W}{p}$ ，因此像素重排前后会导致视觉 token 数量降低 4 倍。token 数量由 patch 数决定，而 patch embedding 对**空间维度**进行划分，通道 $C\cdot r^{2}$ 会被投影到 $d$ 维，不影响 token 数。Transformer 的复杂度是：$O(N^2)$ 因此视觉 token 数减少 4 倍，注意力计算减少 **4² = 16 倍** 。
 
 语言编码器：Qwen2.5-0.5B
 
 在 “视觉-语言” 融合任务中，InternVL3-1B 模型通过替换指定的占位符标记 `<img>`，将 patch-wise 图像嵌入整合到 token 序列中。生成的融合序列经共享 Transformer 解码器处理后，可在统一嵌入空间中实现视觉与语言上下文的联合推理。
+
 $$
 \begin{equation}
 z_t = f_{\text{VLM}}\!\left(\{ I_t^i \}_{i=1}^{N}, L_t\right),
 \end{equation}
 $$
+
 VLM 输出的 $z_t$ 表示融合的多模态表征，该表征同时编码视觉与语言信息，作为集成模块的输入。
 
 为使预训练的 VLM 更好地适应具身视觉运动任务，仅保留语言分支的前 14 层 $\longrightarrow$ 参考 SmolVLA 中间层在视觉与语言特征间具有更强的跨模态对齐能力，因此更适用于视觉运动控制。
@@ -84,6 +89,7 @@ Evo-1 采用条件去噪模块作为 action-expert ，通过 “视觉-语言”
 该模型沿用 flow-matching 范式，学习一个随时间变化的向量场，逐步将**初始噪声动作**转化为**真实目标动作**。具体而言， action-expert 采用 DiT 实现，该架构<u>仅依赖堆叠交叉注意力层</u>，与先前 $\pi_0$ 和 SmolVLA 采用的交替自注意力与交叉注意力结构形成对比。每个噪声动作序列 $A^{τ} _t$ 通过真实动作 $A_t$ 与随机采样噪声向量 $\epsilon$ 的**线性插值**生成：$A_t^{\tau} = \tau A_t + (1{-}\tau)\epsilon$ 。插值权重 $\tau$ 从贝塔分布中采样，并被限制在 $[0.02,0.98]$ 范围内以确保训练过程中的数值稳定性。
 
 训练过程中， action-expert 通过优化学习时序速度场 $v_{\theta}$ ，使其在多模态上下文 $z_t$ 和机器人状态 $s_t$ 的引导下，将插值动作 $A^{τ} _t$ 逐步逼近真实动作 $A_t$ 。该目标函数采用 flow-matching 进行建模。
+
 $$
 \begin{equation}
 \mathcal{L}^{\tau}(\theta) =
@@ -95,6 +101,7 @@ $$
 \right]
 \end{equation}
 $$
+
 推理过程：$\hat{A}_t = f_{\text{AE}}(z_t, s_t, A_t^\tau)$ 来生成 action chunk $\hat{A}_t = [\hat{a}_t, \hat{a}_{t+1}, \dots, \hat{a}_{t+H-1}]$ 
 
 **3.2.3. Integration Module**
