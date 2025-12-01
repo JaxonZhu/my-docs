@@ -405,7 +405,7 @@ img_token_locations = torch.where(img_token_mask)[1]
 
 这些位置非常重要，因为后面要把视觉 embedding 插到这些位置上。
 
-**3. 得到文本 token 的 embedding **
+**3. 得到文本 token 的 embedding**
 
 ```python
 input_embeds = self.model.language_model.get_input_embeddings()(input_ids).clone()
