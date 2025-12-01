@@ -42,13 +42,14 @@ Get in touch
 ================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: VLA works:
    
    index-Evo-1-HEAD
    index-NORA-HEAD
    index-HiORS-HEAD
    index-iRe-VLA-HEAD
+   index-RLinfVLA-HEAD
 
    :caption: Engineering:
 
