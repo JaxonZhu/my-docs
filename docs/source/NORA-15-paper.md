@@ -58,6 +58,7 @@ $$
     a_{t:t+N} &= A_\theta(K_{VL, t}, V_{VL, t})
 \end{align}
 $$
+
 $K_{VL, t}$ / $V_{VL, t}$ $\longrightarrow$ NORA backbone $VL$ 中 transformer 层中的键值对
 
 **Input Encoding with NORA**
@@ -67,17 +68,21 @@ $K_{VL, t}$ / $V_{VL, t}$ $\longrightarrow$ NORA backbone $VL$ 中 transformer �
 当前 $\tau$ 时刻 action expert 预测：$A(a_{t:t+N}^\tau, K_{VL, t}, V_{VL, t})$ ；目标：$a_0 - a_{t:t+N}$ 
 
 构建损失：
+
 $$
 \begin{align}
 \mathcal{L}_{\text{FM}} = \mathbb{E}_{v,a_{t:t+N}^\tau}  \parallel A(a_{t:t+N}^\tau, K_{VL, t}, V_{VL, t}) - v \parallel^2
 \end{align}
 $$
+
 action expert 的网络结构和 NORA 类似，前向计算过程：
+
 $$
 \begin{align}
     x^{(l+1)} = Transformer^{(l)}(& Q=W_Q^{(l)}x^{(l)}, \underbrace{K=K_{VL}^{(l)} \oplus W_K^{(l)}x^{(l)}}_{\text{from NORA VLA}}, \underbrace{V=V_{VL}^{(l)} \oplus W^{(l)}_Vx^{(l)}}_{\text{from NORA VLA}})
 \end{align}
 $$
+
 **3.2. Reward Modeling for Post-training VLAs**
 
 训练奖励模型需要数据，其中每个动作均根据其对成功完成目标的亲和性（affinity）进行评估。
@@ -95,10 +100,13 @@ $$
 **第二部分**: Ground-Truth-Action-based reward $\longrightarrow$ 动作序列 vs. 真值序列
 
 预测性 Transformer $P_\theta$ 接收当前由 V-JEPA2 $J$ 编码的观测 $o_t$ 和动作序列 $a_{t:t+N}$ 输出 $N$ 时刻后的观测 $\hat{o}_{t}$ 
+
 $$
 J(o_{t+N}) = W_\theta(o_t, a_{t:t+N}) := P_\theta(J(o_t), a_{t:t+N})
 $$
+
 这种组合可缓解世界模型引导的目标导向奖励的**噪声**问题，该奖励源自基于有限数据训练的动作条件世界模型，可能**无法良好泛化至所有场景**。另一方面，基于动作的奖励可能过于受限，因为真实轨迹可能不唯一，在此类情况下，**目标驱动奖励**可能表现良好。
+
 $$
 \begin{align}
     & R_g(a_{t:t+N}, o_t) := - ||J(o_g) - W_\theta(o_t, a_{t:t+N})||_1, g\in \{\text{endgoal}, \text{subgoal-}t\}, \\
@@ -106,11 +114,13 @@ $$
     & R_\text{tot}(a_{t:t+N}, o_t) := R_g(a_{t:t+N}, o_t) + 0.5 R_a(a_{t:t+N})
 \end{align}
 $$
+
 在推理的时候，给定一个固定的任务描述和观察值 $s_t$ ，模型会为不同的候选动作 $\{a^{(1)}_{t:t+N},\dots,a^{(N)}_{t:t+N}\}$ 分配比较分数，从而使 VLA 能够区分这些动作的相对质量，从而在 DPO 过程中鼓励 step-wise 探索。
 
 最终基于奖励模型录制数据集 $D_\text{goal}$ 和以 $(\texttt{winner}, \texttt{loser})$ 为形式的 $D_\text{act}$ 两份数据集。
 
 **3.3. Training**
+
 $$
 \begin{align}
         \small
@@ -122,6 +132,7 @@ $$
 \Big).
     \end{align}
 $$
+
 action expert 参数经过随机初始化后，与 NORA VLA 参数联合训练，采用组合式 flow-matching 损失函数对 action expert 输出进行优化，并通过交叉熵损失函数对 NORA 的 FAST+ 输出 token 进行评估。
 
 同时，将 VLA 解码器头部的 FAST+ 动作输出 token 解码成连续 action 向量与 flow-matching 预测的 action 对齐，对应是 `-FAST` 实验。
