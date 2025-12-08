@@ -4,9 +4,9 @@
 
 问题（1）VLA 参数多 + 依赖机器人数据预训练 $\longrightarrow$ 训练成本高 + 现实推理能力受限（2）常规训练范式导致 VLM backbone 的感知能力降级了，存在过拟合现象并削弱了下游任务的泛化能力。
 
-提出 Evo-1 $\longrightarrow$ 轻量级 VLA 降低训练成本并提升推理效率 + 在<u>没有机器人数据预训练</u>的情况下表现良好
+提出 Evo-1 $\Longrightarrow$ 轻量级 VLA 降低训练成本并提升推理效率 + 在<u>没有机器人数据预训练</u>的情况下表现良好
 
-- <u>原生</u> VLM 提取视觉语言特征 + 交叉调制 diffusion transformer 用于动作生成 + 优化过的集成模块对齐视觉语言和本体数据
+- <u>原生</u> VLM 提取视觉语言特征 + 基于纯 cross-attention 的调制型 diffusion transformer 用于动作生成 + 优化过的集成模块对齐视觉语言和本体数据
 - **两阶段**训练过程，将感知和动作**渐进对齐**，保留 VLM 的感知能力
 
 0.77B 模型：仿真 MetaWorld / RoboTwin 评估，现实世界 $78\%$ 成功率
@@ -15,7 +15,7 @@
 
 作者提出现存 VLA 的三个现象（1）巨量参数导致训练 / 推理 GPU 显存占用与计算消耗大 + 部署低频（2）端到端训练削弱视觉表征空间（3）大量的机器人数据 OXE / DROID 来**预训练**。
 
-====> 轻量级模型设计：<font color=green>Intern-VL3 + 交叉调制 DiT + 优化过的集成模块对齐 **VL 表征**和**本体**状态</font>
+====> 轻量级模型设计：<font color=green>Intern-VL3 + 互注意力调制 DiT + 优化过的集成模块对齐 **VL 表征**和**本体**状态</font>
 
 > Intern-VL3 的原始模型架构如下：
 >
@@ -42,7 +42,7 @@
 
 > ![](images/Evo-1/Evo-1-1.png)
 >
-> 输入的 RGB 图像和语言指令首先被一组紧凑的 VLM backbones （Intern ViT-300M + Qwen2.5-0.5B）编码，双模态融合后的 “视觉-语言” 表征和机器人本体数据在优化过的集成模块上作进一步对齐，最后经由交叉调制的 Diffusion Transformers 进行处理生成 action chunk 。
+> 输入的 RGB 图像和语言指令首先被一组紧凑的 VLM backbones （Intern ViT-300M + Qwen2.5-0.5B）编码，双模态融合后的 “视觉-语言” 表征和机器人本体数据在优化过的集成模块上作进一步对齐，最后经由基于互注意力构建的调制 Diffusion Transformers 进行处理生成 action chunk 。
 
 多视角观测 $\{ I_t^i \}_{i=1}^{N}$ + 语言指令 $L_t$ + 机器人本体状态 $s_t$ $\longrightarrow$ 可学习参数为 $\theta$ 的 Evo-1 前向计算 $\longrightarrow$ 动作 $a_t$
 
@@ -64,7 +64,7 @@ $$
 > 
 > $\text{PixelUnshuffle}(X)\in R^{(C\cdot r^2)\times (H/r)\times (W/r)}$
 > 
-> 而 ViT 的视觉 token 数量是：$N = \frac{H}{p} \cdot \frac{W}{p}$ ，因此像素重排前后会导致视觉 token 数量降低 4 倍。token 数量由 patch 数决定，而 patch embedding 对**空间维度**进行划分，通道 $C\cdot r^{2}$ 会被投影到 $d$ 维，不影响 token 数。Transformer 的复杂度是：$O(N^2)$ 因此视觉 token 数减少 4 倍，注意力计算减少 **4² = 16 倍** 。
+> 而 ViT 的视觉 token 数量是：$N = \frac{H}{r} \cdot \frac{W}{r}$ ，因此像素重排前后会导致视觉 token 数量降低 4 倍。token 数量由 patch 数决定，而 patch embedding 对**空间维度**进行划分，通道 $C\cdot r^{2}$ 会被投影到 $d$ 维，不影响 token 数。Transformer 的复杂度是：$O(N^2)$ 因此视觉 token 数减少 4 倍，注意力计算减少 **4² = 16 倍** 。
 
 语言编码器：Qwen2.5-0.5B
 
@@ -104,7 +104,7 @@ $$
 
 **3.2.3. Integration Module**
 
-为完整保留感知嵌入与机器人本体感知状态的信息，选择将 $z_t$ 与机器人状态 $s_t$ 直接拼接，而非投射至共享嵌入空间。这种拼接特征作为 action-expert 网络中 Transformer 模块的键值输入，为动作生成提供了全局且信息完整的上下文支持。
+为完整保留感知嵌入与机器人本体感知状态的信息，<font color=red>选择将 $z_t$ 与机器人状态 $s_t$ 直接拼接</font>，而非投射至共享嵌入空间。这种拼接特征作为 action-expert 网络中 Transformer 模块的键值输入，为动作生成提供了全局且信息完整的上下文支持。
 
 **3.3. Two-Stage Training Procedure**
 
@@ -122,7 +122,7 @@ $$
 
 ![](images/Evo-1/Evo-1-2.png)
 
-经过机器人操作数据训练后，InternVL3-1B 的嵌入向量仍保持清晰的结构特征和语义连贯的注意力区域，而 Prismatic-7B 则出现显著的语义漂移和对齐效果下降。这一结果表明，训练流程有效保留了原始语义空间，使模型在适应下游控制任务时仍能保持强大的视觉语言理解能力。
+经过机器人操作数据训练后，InternVL3-1B 的嵌入向量仍保持<u>清晰的结构特征</u>和<u>语义连贯的注意力区域</u>，而 Prismatic-7B 则出现**显著的语义漂移**和**对齐效果下降**。这一结果表明，训练流程有效保留了原始语义空间，使模型在适应下游控制任务时仍能保持强大的视觉语言理解能力。
 
 **4. Experiments**
 
@@ -132,25 +132,25 @@ $$
 
 **4.1.1. Meta-World Benchmark**
 
-【实验设置】在实验中，采用 Meta-World 官方的轨迹生成脚本构建数据集，每个任务包含 50 个演示样本，通过十次独立测试评估各任务表现，并汇总五次独立运行的平均结果。
+【实验设置】在实验中，采用 Meta-World 官方的轨迹生成脚本构建数据集，每个任务包含 50 条演示轨迹，通过 10 次独立测试评估各任务表现，并汇总 5 次独立运行的平均结果。
 
-【baseline】Diffusion Policy / TinyVLA / $\pi_{0}$ / SmolVLA ，==指标从原论文或复现报告中获得==
+【baseline】Diffusion Policy / TinyVLA / $\pi_{0}$ / SmolVLA ，*指标从原论文或复现报告中获得*
 
-【实验结论】（1）Evo-1 在 Meta-World 基准测试中表现最佳，成为现有 VLA 中的 SOTA （2）Evo-1在四个难度等级（简单、中等、困难和非常困难）中始终优于所有 baseline 。
+【实验结论】（1）Evo-1 在 Meta-World 基准测试中表现最佳，成为现有 VLA 中的 SOTA （2）Evo-1 在四个难度等级（简单、中等、困难和非常困难）中始终优于所有 baseline 。
 
 **4.1.2. LIBERO Benchmark**
 
-【实验设置】十次独立测试评估各任务表现，并汇总五次独立运行的平均结果。
+【实验设置】10 次独立测试评估各任务表现，并汇总 5 次独立运行的平均结果。
 
-【baseline】OpenVLA / CoT-VLA / $\pi_0$-FAST / SmolVLA / GROOT N1 / $\pi_0$ ，==指标从原论文或复现报告中获得==
+【baseline】OpenVLA / CoT-VLA / $\pi_0$-FAST / SmolVLA / GROOT N1 / $\pi_0$ ，*指标从原论文或复现报告中获得*
 
-【实验结论】Evo-1 的平均成功率高达 $94.8\%$ ，不仅超越了 $\pi_0$ 的 $94.2\%$ 和 SmolVLA 的 $88.8\%$ 等基准模型，更在四大任务类别（空间、物体、目标、长任务）中保持稳定优异表现。尤其在长任务领域的 $92.3\%$ ，其稳健性表现尤为突出，而多数现有视觉语言模型在此类任务中均出现显著性能下滑。
+【实验结论】Evo-1 的平均成功率高达 $94.8\%$ ，不仅超越了 $\pi_0$ 的 $94.2\%$ 和 SmolVLA 的 $88.8\%$ 等基准模型，更在四大任务类别（Spatial / Object / Goal / Long）中保持稳定优异表现。尤其在长任务领域的 $92.3\%$ ，其稳健性表现尤为突出，而多数现有视觉语言模型在此类任务中均出现显著性能下滑。
 
 **4.1.3. RoboTwin Benchmark**
 
 【实验设置】在评估过程中，每项 policy 都会在两种难度设置下进行 100 次测试，从而全面评估其在不同操作场景中的鲁棒性和泛化能力。
 
-【baseline】ACT / Diffusion Policy / RDT / $\pi_0$ ，==指标从原 RoboTwin 论文中获得==
+【baseline】ACT / Diffusion Policy / RDT / $\pi_0$ ，*指标从原 RoboTwin 论文中获得*
 
 【实验结论】在 RoboTwin 测试套件中，Evo-1 展现出最佳整体表现，平均成功率高达 $37.8\%$ ，超越了此前 SOTA 模型 $\pi_0$ $30.9\%$ 的纪录。
 
@@ -169,7 +169,7 @@ xArm6 机械臂 + 并行夹爪
 
 ![](images/Evo-1/Evo-1-4.png)
 
-Evo-1 在四项实际任务中平均成功率达到 $78\%$ ，显著优于 SmolVLA $50\%$ / OpenVLAOFT $55\%$ / $\pi_0$ $73\%$ 。
+Evo-1 在四项实际任务中平均成功率达到 $78\%$ ，显著优于 SmolVLA $50\%$ / OpenVLA-OFT $55\%$ / $\pi_0$ $73\%$ 。
 
 ![](images/Evo-1/Evo-1-5.png)
 
@@ -187,13 +187,13 @@ Evo-1 在四项实际任务中平均成功率达到 $78\%$ ，显著优于 SmolV
 
 ![](images/Evo-1/Evo-1-8.png)
 
-模块 A $\longrightarrow$ 中层交叉注意力机制。该设计从第 14 层 VLM 中提取融合的多模态特征 $z_t$，将其与机器人状态 $s_t$ 拼接，作为所有 DiT 层的 key / value 输入，其中噪声注入动作 $A_{τ}^{t}$ 作为交叉注意力的 query 。
+模块 A $\longrightarrow$ 中层交叉注意力机制。该设计从第 14 层 VLM 中提取融合的多模态特征 $z_t$，将其与机器人状态 $s_t$ 拼接，作为**所有 DiT 层的 key / value 输入**，其中噪声注入动作 $A_{τ}^{t}$ 作为交叉注意力的 query 。
 
-模块 B $\longrightarrow$ 中层交错交叉 + 自注意力机制。该设计在 DiT 内部交错排列交叉注意力层与自注意力层。每个交叉注意力模块先对拼接的 VLM 特征和状态 $s_t$ 进行注意力捕捉，随后通过自注意力模块优化内部交互。
+模块 B $\longrightarrow$ 中层交错交叉 + 自注意力机制。该设计在 DiT 内部交错排列交叉注意力层与自注意力层。每个交叉注意力模块**先对拼接的 VLM 特征和状态 $s_t$ 进行注意力捕捉**，随后**通过自注意力模块优化内部交互**。
 
 模块 C $\longrightarrow$ 分层交叉注意力机制。该设计将选定的中深层 VLM 特征注入 DiT ，各对应层使用其配对的 VLM 特征和状态 $s_t$ 作为 key / value 输入，同时以 $A_{τ}^{t}$ 作为 query ，实现层级感知-动作对齐。
 
-模块 D $\longrightarrow$ 联合 key / value 交叉注意力机制。该设计将 VLM 特征、机器人状态 $s_t$ 和噪声注入动作拼接，为每个 DiT 层形成联合 key / value 输入，同时以 $A_{τ}^{t}$ 作为 query 实现统一的多模态条件生成。
+模块 D $\longrightarrow$ 联合 key / value 交叉注意力机制。该设计将 VLM 特征、机器人状态 $s_t$ 和噪声动作拼接，为每个 DiT 层形成联合 key / value 输入，同时以 $A_{τ}^{t}$ 作为 query 实现统一的多模态条件生成。
 
 ![](images/Evo-1/Evo-1-9.png)
 
