@@ -54,11 +54,11 @@ $$
 
 作者做了一些定义：
 
-- $R_t$ 从 $t$ 时间步开始到结束（$\infin$）的 $\gamma$ 折扣的累计奖励：$R_t = \sum_{k=0}^{\infty} \gamma^k r(s_{t+k}, a_{t+k})$
+- $R_t$ 从 $t$ 时间步开始到结束的 $\gamma$ 折扣的累计奖励：$R_t = \sum_{k=0}^{\infty} \gamma^k r(s_{t+k}, a_{t+k})$
 
-- $V_{\pi}(s)$ 从 $t$ 时间步开始到结束（$\infin$）采用 $\pi$ 策略在状态 $s$ 下获得的回报的期望：$V_\pi(s) = \mathbb{E}_\pi[R_t \mid s_t = s]$
+- $V_{\pi}(s)$ 从 $t$ 时间步开始到结束采用 $\pi$ 策略在状态 $s$ 下获得的回报的期望：$V_\pi(s) = \mathbb{E}_\pi[R_t \mid s_t = s]$
 
-- $Q_{\pi}(s,a)$ 从 $t$ 时间步开始到结束（$\infin$）采用 $\pi$ 策略在状态 $s$ 且执行动作 $a$ 下获得的回报的期望：$Q_\pi(s) = \mathbb{E}_\pi[R_t \mid s_t = s, a_t=a]$
+- $Q_{\pi}(s,a)$ 从 $t$ 时间步开始到结束采用 $\pi$ 策略在状态 $s$ 且执行动作 $a$ 下获得的回报的期望：$Q_\pi(s) = \mathbb{E}_\pi[R_t \mid s_t = s, a_t=a]$
 
 - $A_{\pi}(s,a)$ 量化了在状态 $s$ 下采取行动 $a$ 相较于该状态 $s$ 期望价值的提升程度。
   
@@ -172,7 +172,7 @@ $$
 
 **3.2.1 LORA SUPPORT**
 
-用户可灵活选择是否启用 LoRA `is lora` $\longrightarrow$ 该模式下 VLA 中的所有**线性模块**默认被指定为目标模块
+用户可灵活选择是否启用 LoRA `is_lora` $\longrightarrow$ 该模式下 VLA 中的所有**线性模块**默认被指定为目标模块
 
 **3.2.2 MODEL TYPE**
 

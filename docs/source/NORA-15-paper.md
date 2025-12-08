@@ -95,7 +95,7 @@ $$
 
 奖励模型包含两个组成部分：
 
-**第一部分**: *WM-guided goal-based reward* $\longrightarrow$ 动作序列 $\longrightarrow$ 未来目标（子目标 sub-goal `sub-goal` / 最终目标 final-goal `sub-goal`） $\longrightarrow$ 合适的计算方式 $\longrightarrow$ 奖励信号
+**第一部分**: *WM-guided goal-based reward* $\longrightarrow$ 动作序列 $\longrightarrow$ 未来目标（子目标 sub-goal `sub-goal` / 最终目标 final-goal `end-goal`） $\longrightarrow$ 合适的计算方式 $\longrightarrow$ 奖励信号
 
 **第二部分**: Ground-Truth-Action-based reward $\longrightarrow$ 动作序列 vs. 真值序列
 
