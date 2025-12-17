@@ -1,6 +1,6 @@
 # GR-RL: Going Dexterous and Precise for Long-Horizon Robotic Manipulation
 
-![](docs/source/images/GR-RL/GR-RL-0.png)
+![](images/GR-RL/GR-RL-0.png)
 
 **Abstract**
 
@@ -49,7 +49,7 @@ GR-RL 设计了一种简单而有效的方法，通过<font color=green>镜像�
 
 **2 The GR-RL Model**
 
-![](docs/source/images/GR-RL/GR-RL-1.png)
+![](images/GR-RL/GR-RL-1.png)
 
 Mixture-of-Transformer 结构 = Action $\pi_{\theta}$ 模型 + Crtitc 模型，一共 $5B$ 参数
 
@@ -124,7 +124,7 @@ $$
 
   如图所示：取一条成功轨迹的中间部分作为 retry keyframes $m_i, 0\leq i< M$ ，以这些 retry keyframes 为终点的轨迹可能是<font color=red>**不完整 / 不全局成功 / 可能局部成功**</font>的轨迹，根据上面的奖励函数标定规则<font color=green>**都设置成全 0 奖励数值**</font>。因此有 $M$ 个 retry keyframes 就能衍生出 $M$ 条失败的 episodes 。
 
-![](docs/source/images/GR-RL/GR-RL-2.png)
+![](images/GR-RL/GR-RL-2.png)
 
 有了这些成功和失败的轨迹，通过在这些数据上进行时序差异 temporal difference 学习，<font color=green>critic 模型 $Q_{\phi}$ 可作为鲁棒任务进度评估器</font>。
 
@@ -207,17 +207,17 @@ $$
 
 **Main Results** 
 
-![](docs/source/images/GR-RL/GR-RL-3.png)
+![](images/GR-RL/GR-RL-3.png)
 
-![](docs/source/images/GR-RL/GR-RL-4.png)
+![](images/GR-RL/GR-RL-4.png)
 
 从超级长程任务的每个子进程成功率掉点图来看，掉点最严重的其实是 pick up the shoelace 抓起鞋带任务，而像 “把鞋带传进鞋眼 Thread into the eyelet” 其实没有多少掉点。直观来看 “把鞋带传进鞋眼” 确实更精细点...
 
 **Ablation on the Progress Evaluator**
 
-![](docs/source/images/GR-RL/GR-RL-5-1.png)
+![](images/GR-RL/GR-RL-5-1.png)
 
-![](docs/source/images/GR-RL/GR-RL-5-2.png)
+![](images/GR-RL/GR-RL-5-2.png)
 
 **7 Limitations & Conclusions**
 
