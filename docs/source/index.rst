@@ -50,6 +50,7 @@ Get in touch
    index-HiORS-HEAD
    index-iRe-VLA-HEAD
    index-RLinfVLA-HEAD
+   index-GR-RL-HEAD
 
    :caption: Engineering:
 
