@@ -45,6 +45,7 @@ Get in touch
    :maxdepth: 1
    :caption: VLA works:
    
+   index-Pi-x-VLA-HEAD
    index-Evo-1-HEAD
    index-NORA-HEAD
    index-HiORS-HEAD
