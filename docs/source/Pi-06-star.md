@@ -1,3 +1,5 @@
+# $\pi_{0.6}^{\ast}$: a VLA That Learns From Experience
+
 ![](images/Pi-06-star/Pi-0.6-starPaperReading_01.png)
 
 ![](images/Pi-06-star/Pi-0.6-starPaperReading_02.png)
