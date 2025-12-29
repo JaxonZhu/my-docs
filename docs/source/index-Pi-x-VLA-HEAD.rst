@@ -3,7 +3,7 @@
 
 .. toctree::
    :maxdepth: 1
-   :caption: Contents of :math:`\pi`-x VLAs and methods:
+   :caption: Contents of π-x VLAs and methods:
 
    Pi-05
    Pi-06-model-card
