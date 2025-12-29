@@ -52,6 +52,7 @@ Get in touch
    index-iRe-VLA-HEAD
    index-RLinfVLA-HEAD
    index-GR-RL-HEAD
+   index-ACG-HEAD
 
    :caption: Engineering:
 
