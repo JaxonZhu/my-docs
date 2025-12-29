@@ -1,4 +1,4 @@
-:math:`\pi` 系列 VLA 专题
+:math:`\pi_{0.6}` / :math:`\pi_{0.6}` / :math:`\pi_{0.6}^{\ast}`
 ===============
 
 .. toctree::

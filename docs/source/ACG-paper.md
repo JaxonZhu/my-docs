@@ -171,7 +171,7 @@ baselines:
 
 *B. Benchmark Results*
 
-<img src="C:\Users\aw\Desktop\工作学习\论文合集-VLA\ACG-2.png" style="zoom:66%;" />
+![](images/ACG/ACG-2.png)
 
 $\Longrightarrow$ 动作平滑方法相较于原始基线仅带来有限提升，这表明动作平滑性对操作确实至关重要。但由于这些方法直接对模型特征或输出进行平滑处理，可能导致精细动作细节模糊，最终仅获得边际性改进。
 
@@ -194,7 +194,7 @@ $\Longrightarrow$ WNG 的性能仅次于 ACG ，排名第二。这说明使用�
 2. JerkRMS ($rad/s^3$) : 电机关节角的三阶导数，表示角加速度的变化率
 
    JerkRMS 通过测量该 jerk 的均方根值来评估最终运动的平滑度。
-   
+
    $$
    \mathrm{JerkRMS}=\sqrt{\frac{1}{T-3}\sum_{t=1}^{T-3}\|\ddot{\mathrm{s}}_t\|_2^2}
    $$
@@ -207,7 +207,7 @@ $\Longrightarrow$ 与 Vanilla GR00T-N1 相比， CFG <u>并未提升动作连贯
 
 $\Longrightarrow$ 通过对这种不连贯的 flow-matching 变体进行外推， ACG 实现了最连贯的动作序列，同时保持与 *Ensemble* 方法相当的 ATV 分数。与 *Ensemble* 方法常产生不准确动作序列不同， ACG 生成的运动序列准确且时间一致，从而获得更高的成功率。
 
-<img src="C:\Users\aw\Desktop\工作学习\论文合集-VLA\ACG-3.png" style="zoom:50%;" />
+![](images/ACG/ACG-3.png)
 
 > 这一部分回答了作者在这章节开头提的问题：ACG 生成了连贯的动作吗？那么作者使用两个定量指标 ATV 和 JerkRMS 来评测 ACG 和其他方法对比，用数据来说明 ACG 确实生成了连贯动作；同时还在论文文案中描述其他方法的不足进一步证实。最后附上路径图也定行地描述了 ACG 确实生成了连贯动作。
 
@@ -215,17 +215,17 @@ $\Longrightarrow$ 通过对这种不连贯的 flow-matching 变体进行外推�
 
 $\Longrightarrow$ Guidance Scale 超参数调整：
 
-<img src="C:\Users\aw\Desktop\工作学习\论文合集-VLA\ACG-4.png" style="zoom:67%;" />
+![](images/ACG/ACG-4.png)
 
 $\Longrightarrow$ 调整 attention map 的层数
 
-<img src="C:\Users\aw\Desktop\工作学习\论文合集-VLA\ACG-5.png" style="zoom:67%;" />
+![](images/ACG/ACG-5.png)
 
 $\Longrightarrow$ 与 Self-GAD 的对比
 
 Self-GAD 是一种通过 test-time 引导提升 cross-chunk 连贯性的并行工作。策略预测 16 个动作但仅执行前 8 个。虽然后视范围提高了反应性，但其实际将决策范围扩大了一倍，这会放大累积误差并降低基准性能。
 
-<img src="C:\Users\aw\Desktop\工作学习\论文合集-VLA\ACG-6.png" style="zoom:50%;" />
+![](images/ACG/ACG-6.png)
 
 虽然 ACG 和Self-GAD都优于基线方法，但 ACG 的准确率更高。这说明，虽然<u>减少块间错误和增强块内一致性</u>都能提升性能，但后者对操作任务更为关键。此外，将 ACG 与 Self-GAD 结合使用效果最佳，表明提出的块内方法与块间方法相辅相成，可整合以获得额外增益。
 
@@ -233,7 +233,7 @@ Self-GAD 是一种通过 test-time 引导提升 cross-chunk 连贯性的并行�
 
 *c) Generalization to Flow-based Action Generation Models*
 
-<img src="C:\Users\aw\Desktop\工作学习\论文合集-VLA\ACG-7.png" style="zoom:50%;" />
+![](images/ACG/ACG-7.png)
 
 > 这一部分回答 ACG 算法是通用的还是专门给 GR001-N1 优化的，结果也是显然。
 
