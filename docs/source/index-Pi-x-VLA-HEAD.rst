@@ -1,4 +1,4 @@
-:math:`\pi_{0.6}` / :math:`\pi_{0.6}` / :math:`\pi_{0.6}^{\ast}`
+:math:`\pi_{0.5}` / :math:`\pi_{0.6}` / :math:`\pi_{0.6}^{\ast}`
 ===============
 
 .. toctree::
