@@ -55,6 +55,7 @@ Get in touch
    index-ACG-HEAD
    index-OTR-HEAD
    index-AILOT-HEAD
+   index-RoboDopamine-HEAD
 
    :caption: Engineering:
 
