@@ -72,7 +72,7 @@ GRM ==> VLM ==> 基于<u>相对时序状态</u>转移构建的大规模数据集
 
 - **Step-wise task progress discretization.** 演示视频分割
 
-  人类标注 $\Longrightarrow$ 从 expert 演示轨迹中找到 $N$ 步关键帧 $\{K_0,K_1,\ldots,K_N\}$ ，每个 $K$ 关键帧都是多视角视觉图片的集合。$K_0$ 演示轨迹初始观测，$K_N$ 最后一帧观测 $\Longrightarrow$ <font color=green>实际上是把演示视频拆成 $N-1$ 段</font>
+  人类标注 $\Longrightarrow$ 从 expert 演示轨迹中找到 $N$ 步关键帧 $\{K_0,K_1,\ldots,K_N\}$ ，每个 $K$ 关键帧都是多视角视觉图片的集合。$K_0$ 演示轨迹初始观测，$K_N$ 最后一帧观测 $\Longrightarrow$ <font color=green>实际上是把演示视频拆成 $N-1$ 段，**视频拆分的程度时 subtask 级别，也就是每个视频片段都是一个 subtask**.</font>
 
   <font color=red>如何对演示轨迹进行拆分得到关键帧？</font>(1) 先把长度为 $L$ 的轨迹按照 $C$ 长度的 chunk size 进行拆分；(2) 在每个 chunk 内按照 $N$ 长度进行拆分；(3) 帧必然是整数，所以每次拆分计算都**取整**。最终得到的拆分点数量：
 
