@@ -56,6 +56,7 @@ Get in touch
    index-OTR-HEAD
    index-AILOT-HEAD
    index-RoboDopamine-HEAD
+   index-RoboReward-HEAD
 
    :caption: Engineering:
 
