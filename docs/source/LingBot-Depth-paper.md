@@ -76,7 +76,7 @@ joint embedding architectures: *Self-supervised learning from images with a join
 4. 【应用】将预训练模型作为即插即用的深度估计器用于三维跟踪，在现实场景中可提升运动理解能力并提高计算效率
 5. 【应用】通过训练灵巧抓取策略实现实用机器人功能，利用通过 MDM 学习到的鲁棒深度预测和<font color=red>潜在表征</font>，以实现<font color=red>开放世界抓取</font>。
 
-![](C:/Users/aw/Desktop/工作学习/论文合集-VLA/Lingbot-Depth-2.png)
+![](images/LingBot-Depth/Lingbot-Depth-2.png)
 
 **2 Masked Depth Modeling**
 
@@ -151,7 +151,7 @@ joint embedding architectures: *Self-supervised learning from images with a join
 
 可视化最终编码器层的深度到 RGB 注意力图
 
-![](C:/Users/aw/Desktop/工作学习/论文合集-VLA/Lingbot-Depth-3.png)
+![](images/LingBot-Depth/Lingbot-Depth-3.png)
 
 1. Input RGB-Depth 图像中指定的区域都能在 Attention 中比较敏感地找到；
 2. Input RGB-Depth 图像中指定的不同区域具有不的深度，也能在 Attention 中比较敏感地找到；
@@ -198,15 +198,15 @@ $\Longrightarrow$ 使用广泛采用的**半全局匹配**（Semi-Global Matchin
 
 $\Longrightarrow$ 在 Blender 中配置了一对虚拟摄像机，并从 $0.05$ 至 $0.2$ 米的均匀分布中随机采样立体基线。摄像机焦距独立采样自16至28毫米的均匀分布，从而实现多样化的成像几何结构。
 
-![](C:/Users/aw/Desktop/工作学习/论文合集-VLA/Lingbot-Depth-4.png)
+![](images/LingBot-Depth/Lingbot-Depth-4.png)
 
 作者的合成数据集的优势在于：数据集规模比前人已有的高出几个数量级；高质量 3D 场景。
 
 **3.2 Scalable RGB-D Capture Systems**
 
-![](C:/Users/aw/Desktop/工作学习/论文合集-VLA/Lingbot-Depth-5.png)
+![](images/LingBot-Depth/Lingbot-Depth-5.png)
 
-![](C:/Users/aw/Desktop/工作学习/论文合集-VLA/Lingbot-Depth-6.png)
+![](images/LingBot-Depth/Lingbot-Depth-6.png)
 
 从采集的数据集分布来看，基本满足当前 embodied 的验证环境，从数据分布可以得到预训练出来的 model 可以作为 robot policy 的一种 backbone 继续去（预）训练。
 
@@ -214,7 +214,7 @@ $\Longrightarrow$ 在 Blender 中配置了一对虚拟摄像机，并从 $0.05$ 
 
 **3.3 Training Data Summary**
 
-![](C:/Users/aw/Desktop/工作学习/论文合集-VLA/Lingbot-Depth-7.png)
+![](images/LingBot-Depth/Lingbot-Depth-7.png)
 
 开源合成数据集不存在缺失的深度测量值 $\Longrightarrow$ 通过随机生成补丁化 tokens 来满足 $60\%-90\%$ 的预期掩码比例范围，且无需额外处理。对于现实世界中的开源数据集，其掩码策略同样以随机掩码采样为主，因为这些数据集的深度图相较于我们整理的数据更为完整。
 
@@ -226,13 +226,13 @@ $\Longrightarrow$ 在 Blender 中配置了一对虚拟摄像机，并从 $0.05$ 
 
 通过**从真实深度数据中随机屏蔽不同大小的空间区域 / 区块** + **采用受 Kinect 噪声模型启发的加性高斯噪声和类似散粒噪声的扰动**，生成不完整的深度图，模拟消费级深度相机中常见的深度数据缺失现象
 
-![](C:/Users/aw/Desktop/工作学习/论文合集-VLA/Lingbot-Depth-8.png)
+![](images/LingBot-Depth/Lingbot-Depth-8.png)
 
 任务二：*Protocol 2: Sparse SfM Depth Inputs.*
 
 根据 OMNI-DC 的方法，采用 ETH-SfM 数据集上的稀疏 SfM 观测数据，以评估 MDM 预训练模型的性能。
 
-![](C:/Users/aw/Desktop/工作学习/论文合集-VLA/Lingbot-Depth-9.png)
+![](images/LingBot-Depth/Lingbot-Depth-9.png)
 
 **4.2 Monocular Depth Estimation**
 
@@ -246,7 +246,7 @@ $\Longrightarrow$ 在 Blender 中配置了一对虚拟摄像机，并从 $0.05$ 
 
 LingBot-Depth 模型可在多种具有挑战性的场景中显著降低 RGB-D 相机的时空不一致性。
 
-![](C:/Users/aw/Desktop/工作学习/论文合集-VLA/Lingbot-Depth-10.png)
+![](images/LingBot-Depth/Lingbot-Depth-10.png)
 
 **5.2 Online 3D Point Tracking**
 
@@ -270,11 +270,11 @@ Rokae XMate-SR5 机械臂 / X Hand-1 灵巧手 / Orbbec Gemini 335 RGB-D 相机
 
 【结论】
 
-![](C:/Users/aw/Desktop/工作学习/论文合集-VLA/Lingbot-Depth-13.png)
+![](images/LingBot-Depth/Lingbot-Depth-13.png)
 
-![](C:/Users/aw/Desktop/工作学习/论文合集-VLA/Lingbot-Depth-11.png)
+![](images/LingBot-Depth/Lingbot-Depth-11.png)
 
-![](C:/Users/aw/Desktop/工作学习/论文合集-VLA/Lingbot-Depth-12.png)
+![](images/LingBot-Depth/Lingbot-Depth-12.png)
 
 由于深度数据严重失真，透明存储盒完全无法通过原始深度进行抓取，表现出成功率 N/A ；而模型通过生成几何上合理的深度估计，成功率达到 $50\%$ ，尽管在高度透明表面偶尔会出现误差。
 
