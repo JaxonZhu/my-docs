@@ -16,3 +16,4 @@ InternVLA-A1: Unifying Understanding, Generation and Action for Robotic Manipula
    :caption: Contents of InternVLA-A1:
 
    InternVLA-A1-paper
+   InternVLA-A1-model-PartA
