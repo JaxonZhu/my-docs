@@ -1,6 +1,6 @@
 # InternVLA-A1-(2B) 联合注意力 code
 
-![](images/InternVLA-A1/联合注意力计算总图.png)
+![](images/InternVLA-A1/joint_attention_total_figure.png)
 
 **前言**
 
@@ -14,41 +14,41 @@
 
 `Qwen2ForCausalLM(config=gen_expert_config_hf)` **随机初始化**：模型根据提供的 `config=gen_expert_config_hf` 构建结构，但所有参数（权重、偏置）都是**随机生成的数值**。作为一个全新的网络结构，需要在后续的训练步骤中从头开始学习。
 
-![模型参数配置0](images/InternVLA-A1/模型参数配置0.png)
+![模型参数配置0](images/InternVLA-A1/model_config_0.png)
 
-![模型参数配置1](images/InternVLA-A1/模型参数配置1.png)
+![模型参数配置1](images/InternVLA-A1/model_config_1.png)
 
-![模型参数配置2](images/InternVLA-A1/模型参数配置2.png)
+![模型参数配置2](images/InternVLA-A1/model_config_2.png)
 
-![模型参数配置3](images/InternVLA-A1/模型参数配置3.png)
+![模型参数配置3](images/InternVLA-A1/model_config_3.png)
 
-![模型参数配置4](images/InternVLA-A1/模型参数配置4.png)
+![模型参数配置4](images/InternVLA-A1/model_config_4.png)
 
 **====> 模型前向计算**
 
 `embed_image()` 和 `embed_language_tokens()` 方法最终都是将各种模态信息拆解成 `[批维度, 序列维度, 隐藏层维度]` 统一，以便后续联合 Transformers 进行处理.
 
-![前向计算0](images/InternVLA-A1/前向计算0.png)
+![前向计算0](images/InternVLA-A1/model_expert_forward_0.png)
 
-![前向计算1](images/InternVLA-A1/前向计算1.png)
+![前向计算1](images/InternVLA-A1/model_expert_forward_1.png)
 
 推理时，运行 `gen_expert` 模型会接收来自 `und_expert` 专家前向计算的 KV 缓存，在 `.forward()` 方法内部会合并 `und_expert` 和自身前向计算的 KV 缓存。在后续推理时，`attention_mask` 会兼并 `und_expert` 的掩码，同时 `position_ids` 也是从 `und_expert` 产生的结果上继续累加。
 
-![前向计算2](images/InternVLA-A1/前向计算2.png)
+![前向计算2](images/InternVLA-A1/model_expert_forward_2.png)
 
-![前向计算3](images/InternVLA-A1/前向计算3.png)
+![前向计算3](images/InternVLA-A1/model_expert_forward_3.png)
 
-![前向计算4](images/InternVLA-A1/前向计算4.png)
+![前向计算4](images/InternVLA-A1/model_expert_forward_4.png)
 
-![前向计算5](images/InternVLA-A1/前向计算5.png)
+![前向计算5](images/InternVLA-A1/model_expert_forward_5.png)
 
 **====> 联合注意力核心**
 
-![联合注意力核心1](images/InternVLA-A1/联合注意力核心0.png)
+![联合注意力核心1](images/InternVLA-A1/joint_attention_core_0.png)
 
-![联合注意力核心1](images/InternVLA-A1/联合注意力核心1.png)
+![联合注意力核心1](images/InternVLA-A1/joint_attention_core_1.png)
 
-![联合注意力核心2](images/InternVLA-A1/联合注意力核心2.png)
+![联合注意力核心2](images/InternVLA-A1/joint_attention_core_2.png)
 
 ```python
 # 根据 seq_len * 3 长度分段提取不同注意力结果, 输入至不同的 expert's output / mlp 层.
