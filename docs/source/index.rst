@@ -60,6 +60,7 @@ Get in touch
    index-LingBot-Depth-HEAD
    index-InternVLA-A1-HEAD
    index-RoboChemist-HEAD
+   index-MemER-HEAD
 
    :caption: Engineering:
 
