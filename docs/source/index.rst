@@ -59,6 +59,7 @@ Get in touch
    index-RoboReward-HEAD
    index-LingBot-Depth-HEAD
    index-InternVLA-A1-HEAD
+   index-RoboChemist-HEAD
 
    :caption: Engineering:
 
