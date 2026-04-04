@@ -65,6 +65,7 @@ Get in touch
    index-MemoryVLA-HEAD
    index-mimic-video-HEAD
    index-Dit4Dit-HEAD
+   index-CosmosPolicy-HEAD
 
    :caption: Engineering:
 
