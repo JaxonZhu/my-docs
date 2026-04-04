@@ -61,6 +61,7 @@ Get in touch
    index-InternVLA-A1-HEAD
    index-RoboChemist-HEAD
    index-MemER-HEAD
+   index-MemoryVLA-HEAD
 
    :caption: Engineering:
 
