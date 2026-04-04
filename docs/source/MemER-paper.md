@@ -1,6 +1,6 @@
 # MemER: Scaling Up Memory For Robot Control Via Experience Retrieval
 
-<img src="images/MemER/MemER-3.png" style="zoom:75%;" />
+![MemER-3](images/MemER/MemER-3.png)
 
 **ABSTRACT & 1 INTRODUCTION**
 
@@ -75,7 +75,7 @@ $\Longrightarrow$ 将长期历史观测轨迹直接作为 condition: (1) <font c
 
 ​		$(\boldsymbol{I}_t,\boldsymbol{q}_t,\boldsymbol{l}_t,\boldsymbol{l}_t^{\prime},\boldsymbol{a}_t)$ 一条总体语言指令 $\boldsymbol{l}_t$ 下包含若干有限个 sub-task 语言指令 $\boldsymbol{l}_t^{\prime}$。
 
-<img src="images/MemER/MemER-2.png" style="zoom:40%;" />
+![MemER-2](images/MemER/MemER-2.png)
 
 在数据采集系统中，<font color=green>操作员执行预设子任务后按下按键即可进入下一阶段</font>。
 
@@ -85,7 +85,7 @@ $\Longrightarrow$ 将长期历史观测轨迹直接作为 condition: (1) <font c
 
 采用微调后的 VLM 作为 high-level policy，用于在闭环控制过程中**提名候选关键帧**并**预测 low-level policy 的子任务**。随后对候选关键帧进行**冗余过滤**，并将其添加至选定关键帧组中，high-level policy 在<u>预测下一个子任务</u>和<u>候选关键帧</u>时持续依赖该关键帧组。
 
-<img src="images/MemER/MemER-3.png" style="zoom:75%;" />
+![MemER-3](images/MemER/MemER-3.png)
 
 【输入】当前时刻 $t$ 的前 $N$ 时刻的多视角图像 + 高级语言指令 $l_t$ + 选定关键帧 $K_t$
 
@@ -99,7 +99,7 @@ $\Longrightarrow$ 将长期历史观测轨迹直接作为 condition: (1) <font c
 
 ​		在时间步 $t$ 时，高层策略已生成 $J_{0:t} = (J_i)_{i=0}^{t}$，即截至时间步 $t$ 提名的候选集序列 $\longrightarrow$ 提取该序列中<u>每个提名帧的时间索引</u>，并将其合并为一个时间有序列表 $G_{0:t}$，同时保留了重复索引 $\longrightarrow$ 通过将<font color=red>彼此间隔不超过 $d$ 的关键帧索引</font>进行分组，为 $G_{0:t}$ 中的所有候选索引创建簇 $C_i$ $\longrightarrow$ 每个簇 $C_i$ 选择中位数代表每个簇的关键帧 $\longrightarrow$ 最终成为关键帧 $K_t$
 
-<img src="images/MemER/MemER-4.png" style="zoom:75%;" />
+![MemER-4](images/MemER/MemER-4.png)
 
 **3.3 PRACTICAL IMPLEMENTATION OF MEMER**
 
@@ -143,7 +143,7 @@ $$
 
 **任务集**
 
-<img src="images/MemER/MemER-8.png" style="zoom:25%;" />
+![MemER-8](images/MemER/MemER-8.png)
 
 1. **Object Search**
 
@@ -167,7 +167,7 @@ $$
 
 **====> [能力对比] 与无记忆相比，具有记忆的方法带来了何种效果？**
 
-<img src="images/MemER/MemER-5.png" style="zoom: 50%;" />
+![MemER-5](images/MemER/MemER-5.png)
 
 No History: 直接用当前帧；Short History: 过去 8 帧；Long History: 过去 $8\times 4=32$  帧；Human HL: 标准。
 
@@ -181,7 +181,7 @@ No History: 直接用当前帧；Short History: 过去 8 帧；Long History: 过
 
 <font color=red>边界准确率</font> $\longrightarrow$ 子任务间转换点为中心的固定窗口内轨迹准确率 $\longrightarrow$ 通过判断何时切换到下一个子任务
 
-<img src="images/MemER/MemER-6.png" style="zoom: 50%;" />
+![MemER-6](images/MemER/MemER-6.png)
 
 **====> 视觉记忆的意义？与记忆其他模态（文本模态）相比，视觉记忆能带来哪些优势？**
 
@@ -189,7 +189,7 @@ No History: 直接用当前帧；Short History: 过去 8 帧；Long History: 过
 
 "MemER + Text" $\longrightarrow$ 交替使用预测的关键帧和文本子任务作为记忆
 
-<img src="images/MemER/MemER-7.png" style="zoom: 70%;" />
+![MemER-7](images/MemER/MemER-7.png)
 
 纯粹使用语言形式的子任务记忆未能捕获成功完成该任务所需的所有信息。
 
