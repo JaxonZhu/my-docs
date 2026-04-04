@@ -62,6 +62,7 @@ Get in touch
    index-RoboChemist-HEAD
    index-MemER-HEAD
    index-MemoryVLA-HEAD
+   index-mimic-video-HEAD
 
    :caption: Engineering:
 
