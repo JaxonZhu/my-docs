@@ -1,6 +1,6 @@
 # Cosmos Policy: Fine-Tuning Video Models For Visuomotor Control And Planning
 
-![](../_images/CosmosPolicy/CosmosPolicy-1.png)
+![](images/CosmosPolicy/CosmosPolicy-1.png)
 
 **ABSTRACT & 1 INTRODUCTION**
 
@@ -104,7 +104,7 @@ $$
 
 **4.1 LATENT FRAME INJECTION: INCORPORATING NEW MODALITIES**
 
-![](../_images/CosmosPolicy/CosmosPolicy-2.png)
+![](images/CosmosPolicy/CosmosPolicy-2.png)
 
 > ====> 由于视频模型的分词方案，序列开头会设置一个 *"black image for placeholder"占位符图像*：首张图像采用独立编码，其余图像则按四张一组进行时间压缩。
 >
@@ -203,7 +203,7 @@ rollout dataset 收集：多样化初始条件 / 记录轨迹 / 记录成功-失
 
 **Real-world ALOHA robot tasks** 
 
-![](../_images/CosmosPolicy/CosmosPolicy-3.png)
+![](images/CosmosPolicy/CosmosPolicy-3.png)
 
 | Dataset / Benchmark | Gradient Steps | GPUs (Type) | Global Batch Size | Training Time | Action Chunk Size (Predicted) | Action Steps Executed Before Requery | Model Fine-tuning  |
 | ------------------- | -------------- | ----------- | ----------------- | ------------- | ----------------------------- | ------------------------------------ | ------------------ |
@@ -222,7 +222,7 @@ rollout dataset 收集：多样化初始条件 / 记录轨迹 / 记录成功-失
 
 > Q1: Cosmos Policy 作为直接策略使用时，与最先进的模仿学习策略相比表现如何？
 
-![](../_images/CosmosPolicy/CosmosPolicy-4.png)
+![](images/CosmosPolicy/CosmosPolicy-4.png)
 
 "OpenVLA-OFT+ often reaches in between two candies rather than directly going for one; we hypothesize that its L1 regression of actions leads to inaccurate modeling of the action distribution in tasks with high multimodality." $\longrightarrow$ 在存在多个同样合理但彼此差异较大的动作选择时，用 L1 回归学习确定性动作会不可避免地产生 "均值化" 行为，导致机器人执行一个在物理上无效的折中动作（例如伸向两颗糖之间），从而无法正确建模高多模态的动作分布。
 
@@ -230,7 +230,7 @@ rollout dataset 收集：多样化初始条件 / 记录轨迹 / 记录成功-失
 
 $\longrightarrow$ 添加 mask 辅助学习目标消融 / 替换权重进行预训练权重消融
 
-![](../_images/CosmosPolicy/CosmosPolicy-5.png)
+![](images/CosmosPolicy/CosmosPolicy-5.png)
 
 Real-world ALOHA robot + 从头训练 Cosmos Policy: "折叠衬衫" 任务中平均得分 80.8 分，比完整版 Cosmos Policy 低 18.7 分。定性分析显示，从头训练的变体存在抖动动作，长期使用可能损伤机器人，因此我们终止了对该变体的进一步评估。
 
@@ -244,7 +244,7 @@ $\longrightarrow$ with / without planning $\longrightarrow$ 基于 648 rollout d
 
 $\longrightarrow$ 不同的 planning 变体：$V(s^{\prime})$ mask $(s,a)$ 需要 world model 来预测 $s^{\prime}$ // $Q(s,a)$ mask $(s^{\prime})$ 直接使用已知的 $(s,a)$ 预测 Q 值 $\longrightarrow$ 类似 model-free 做法
 
-![](../_images/CosmosPolicy/CosmosPolicy-6.png)
+![](images/CosmosPolicy/CosmosPolicy-6.png)
 
 - for Q3: Model-based $V(s^{\prime})$ 比直接原 model 效果略微更好。
 - for Q4: Model-based $V(s^{\prime})$ 具有更优的性能表现 $\longrightarrow$ 有效利用学习到的环境动力学特性，从而实现更高效且样本效率更高的规划。Model-free $Q(s,a)$ 效果表现略差 $\longrightarrow$ rollouts 数据量有限，难以准确学习 $Q$ 函数，并怀疑该模型可能因输入维度较高而出现过拟合现象。
