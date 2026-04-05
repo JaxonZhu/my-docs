@@ -60,14 +60,15 @@ Get in touch
    index-LingBot-Depth-HEAD
    index-InternVLA-A1-HEAD
    index-RoboChemist-HEAD
-   index-Dit4Dit-HEAD
    index-MemER-HEAD
    index-MemoryVLA-HEAD
    index-mimic-video-HEAD
    index-Dit4Dit-HEAD
    index-CosmosPolicy-HEAD
 
-   :caption: Engineering:
+   :caption: LeRobot:
+
+   lerobotindex-Terminal-Implementation-Principle
 
 
 
