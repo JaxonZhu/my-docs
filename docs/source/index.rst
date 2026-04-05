@@ -44,7 +44,7 @@ Get in touch
 .. toctree::
    :maxdepth: 1
    :caption: VLA works:
-   
+
    index-Pi-x-VLA-HEAD
    index-Evo-1-HEAD
    index-NORA-HEAD
@@ -66,6 +66,8 @@ Get in touch
    index-Dit4Dit-HEAD
    index-CosmosPolicy-HEAD
 
+.. toctree::
+   :maxdepth: 1
    :caption: LeRobot:
 
    lerobotindex-Terminal-Implementation-Principle
