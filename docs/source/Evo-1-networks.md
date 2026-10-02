@@ -1,6 +1,6 @@
-# Evo-1 VLA 内部网络结构 分析
+# Evo-1 源码分析：网络结构与动作生成
 
-Evo-1 获得视觉语言融合 tokens 序列在 `Evo_1\model\internvl3\internvl3_embedder.py` 这个文件中的 `InternVL3Embedder.get_fused_image_text_embedding_from_tensor_images(...)` 函数。
+[Evo-1](Evo-1-paper.md) 获得视觉语言融合 tokens 序列在 `Evo_1\model\internvl3\internvl3_embedder.py` 这个文件中的 `InternVL3Embedder.get_fused_image_text_embedding_from_tensor_images(...)` 函数。
 
 整个 Evo-1 VLA 的动作生成核心模块在 `Evo_1\model\action_head\flow_matching.py` 这个文件中。
 

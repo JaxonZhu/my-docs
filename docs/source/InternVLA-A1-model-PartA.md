@@ -1,14 +1,18 @@
-# InternVLA-A1-(2B) 联合注意力 code
+# InternVLA-A1 源码分析：2B 模型的联合注意力
 
-![](images/InternVLA-A1/joint_attention_total_figure.png)
+这篇源码笔记沿着 [InternVLA-A1 2B](InternVLA-A1-paper.md) 的参数配置、前向计算和联合注意力展开。我主要关注理解、生成与动作三个专家如何交换信息，以及联合计算后的结果如何回到各自的分支。
 
-**前言**
+下图是整体流程：各专家生成 Q、K、V，沿序列维度拼接后计算注意力，再将结果拆回各专家，继续输出投影、残差连接与 MLP 计算。
+
+![InternVLA-A1 联合注意力总览：三个专家的 Q、K、V 拼接计算注意力，再按序列长度拆分回各专家分支](images/InternVLA-A1/joint_attention_total_figure.png)
+
+## 配置说明
 
 > 所有配置参数以 GitHub 上开源呈现为主。
 
-> "Specifically, InternVLA-A1 (2B) utilizes InternVL3-1B as the understanding expert. Its generative and action experts are derived from the transformer blocks of Qwen2.5 — the underlying LLM of InternVL3."
+> "Specifically, [InternVLA-A1 (2B)](InternVLA-A1-paper.md) utilizes InternVL3-1B as the understanding expert. Its generative and action experts are derived from the transformer blocks of Qwen2.5 — the underlying LLM of InternVL3."
 
-**====> 模型参数配置**
+## 模型参数配置
 
 `InternVLForConditionalGeneration.from_pretrained()` 加载预训练权重：模型参数从 Hugging Face Hub 下载的文件 `OpenGVLab/InternVL3-1B-pt` 中加载；结构由预训练模型的配置文件决定，虽然此处传入了 `config=vlm_config_hf` ，但通常需匹配预训练权重。
 
@@ -24,7 +28,7 @@
 
 ![模型参数配置4](images/InternVLA-A1/model_config_4.png)
 
-**====> 模型前向计算**
+## 模型前向计算
 
 `embed_image()` 和 `embed_language_tokens()` 方法最终都是将各种模态信息拆解成 `[批维度, 序列维度, 隐藏层维度]` 统一，以便后续联合 Transformers 进行处理.
 
@@ -42,13 +46,15 @@
 
 ![前向计算5](images/InternVLA-A1/model_expert_forward_5.png)
 
-**====> 联合注意力核心**
+## 联合注意力核心
 
-![联合注意力核心1](images/InternVLA-A1/joint_attention_core_0.png)
+下面的截图对应 Q、K、V 的联合计算；后面的代码展示如何按各专家的序列长度拆分注意力输出，并送回各自的输出层与 MLP。
 
-![联合注意力核心1](images/InternVLA-A1/joint_attention_core_1.png)
+![联合注意力核心截图 1](images/InternVLA-A1/joint_attention_core_0.png)
 
-![联合注意力核心2](images/InternVLA-A1/joint_attention_core_2.png)
+![联合注意力核心截图 2](images/InternVLA-A1/joint_attention_core_1.png)
+
+![联合注意力核心截图 3](images/InternVLA-A1/joint_attention_core_2.png)
 
 ```python
 # 根据 seq_len * 3 长度分段提取不同注意力结果, 输入至不同的 expert's output / mlp 层.

@@ -1,10 +1,12 @@
-# NORA-1.5: 世界模型 真值偏离 奖励建模
+# NORA-1.5 论文解读：世界模型奖励与偏好后训练
+
+论文原题：NORA-1.5: A Vision-Language-Action Model Trained using World Model- and Action-based Preference Rewards
 
 ![](images/NORA/NORA15-1.png)
 
 **Abstract**
 
-**第一项工作** $\Longrightarrow$ NORA-1.5: NORA 预训练 backbone + flow-matching based action expert $\longrightarrow$ 优于原始 NORA / 其他 SOTA
+**第一项工作** $\Longrightarrow$ NORA-1.5: [NORA](NORA-1-paper.md) 预训练 backbone + flow-matching based action expert $\longrightarrow$ 优于原始 NORA / 其他 SOTA
 
 **第二项工作** $\Longrightarrow$ 设计一组奖励模型用于 VLA 后训练 $\longrightarrow$ （1）使用**以动作为条件的世界模型**来评估当前动作是否能达到期望的<font color=green>最终目标</font>或<font color=orange>未来子目标</font>（2）提出一种**基于真值偏离的启发式方法**，用于区分优劣行为 $\longrightarrow$ 构建偏好数据集，引导 NORA-1.5 使用 **DPO** 在目标具身实体上进一步泛化适应 $\longrightarrow$ 仿真 / 现实都表现良好
 
@@ -12,7 +14,7 @@
 
 DPO 流程：奖励模型 + VLA policy rollouts $\longrightarrow$ rank $\longrightarrow$ optimization
 
-受到 $\pi$ 启发 $\longrightarrow$ flow-matching based 动作生成在**推理速度**为首要考虑情况下性能较优 $\longrightarrow$ 使用层级自注意力连接 <u>auto-regressive NORA</u> 和 <u>flow-matching based action expert</u> $\longrightarrow$ 分析（1）flow-matching 能用到自回归 VLA 更多的表征信息，同时 flow-matching 能给 VLA 带来更具信息量的梯度，但是（2）在**少数据场景下**易导致训练不充分。
+受到 [$\pi$](index-Pi-x-VLA-HEAD.rst) 启发 $\longrightarrow$ flow-matching based 动作生成在**推理速度**为首要考虑情况下性能较优 $\longrightarrow$ 使用层级自注意力连接 <u>auto-regressive NORA</u> 和 <u>flow-matching based action expert</u> $\longrightarrow$ 分析（1）flow-matching 能用到自回归 VLA 更多的表征信息，同时 flow-matching 能给 VLA 带来更具信息量的梯度，但是（2）在**少数据场景下**易导致训练不充分。
 
 由于机器人中的奖励建模通常需要评估动作序列实现预期结果的效果，世界模型提供了一种自然机制 $\Longrightarrow$ 直接预测未来帧或基于动作条件的潜在视觉嵌入 $\longrightarrow$ 以世界模型为基础的奖励模型对 <font color=red>**VLA policy 产生的候选动作序列**</font>进行评估，根据其达成目标的能力来估算奖励 $\longrightarrow$ 1.3B 参数量的世界模型 V-JEPA2-AC 作为奖励估计器
 
@@ -38,7 +40,7 @@ DPO 流程：奖励模型 + VLA policy rollouts $\longrightarrow$ rank $\longrig
 
 **2.1. NORA**
 
-参考之前的博客：[NORA 论文阅读 代码分析](https://jaxonzhu-documents.readthedocs.io/en/latest/NORA-1-paper.html)
+参考之前的博客：[NORA 论文与源码解读：自回归动作生成](NORA-1-paper.md)
 
 **2.2. V-JEPA-2-AC**
 
@@ -53,10 +55,10 @@ V- JEPA-2-AC 基于预训练的 V-JEPA-2 $\longrightarrow$ 联合嵌入架构模
 NORA-1.5 结构：使用分开的 action-expert $A$ 直接基于 NORA backbone $VL$ 编码的语言指令 $I$ 和视觉观测 $o_t$ **回归** $N$ 长度的动作序列 $a_{t:t+N}$ $\longrightarrow$ $N=5$ 与 NORA-LONG 一致
 
 $$
-\begin{align}
+\begin{aligned}
     K_{VL, t}, V_{VL, t} &= VL_\theta(o_t, I) \\
     a_{t:t+N} &= A_\theta(K_{VL, t}, V_{VL, t})
-\end{align}
+\end{aligned}
 $$
 
 $K_{VL, t}$ / $V_{VL, t}$ $\longrightarrow$ NORA backbone $VL$ 中 transformer 层中的键值对
@@ -70,17 +72,17 @@ $K_{VL, t}$ / $V_{VL, t}$ $\longrightarrow$ NORA backbone $VL$ 中 transformer �
 构建损失：
 
 $$
-\begin{align}
+\begin{aligned}
 \mathcal{L}_{\text{FM}} = \mathbb{E}_{v,a_{t:t+N}^\tau}  \parallel A(a_{t:t+N}^\tau, K_{VL, t}, V_{VL, t}) - v \parallel^2
-\end{align}
+\end{aligned}
 $$
 
 action expert 的网络结构和 NORA 类似，前向计算过程：
 
 $$
-\begin{align}
+\begin{aligned}
     x^{(l+1)} = Transformer^{(l)}(& Q=W_Q^{(l)}x^{(l)}, \underbrace{K=K_{VL}^{(l)} \oplus W_K^{(l)}x^{(l)}}_{\text{from NORA VLA}}, \underbrace{V=V_{VL}^{(l)} \oplus W^{(l)}_Vx^{(l)}}_{\text{from NORA VLA}})
-\end{align}
+\end{aligned}
 $$
 
 **3.2. Reward Modeling for Post-training VLAs**
@@ -108,11 +110,11 @@ $$
 这种组合可缓解世界模型引导的目标导向奖励的**噪声**问题，该奖励源自基于有限数据训练的动作条件世界模型，可能**无法良好泛化至所有场景**。另一方面，基于动作的奖励可能过于受限，因为真实轨迹可能不唯一，在此类情况下，**目标驱动奖励**可能表现良好。
 
 $$
-\begin{align}
+\begin{aligned}
     & R_g(a_{t:t+N}, o_t) := - ||J(o_g) - W_\theta(o_t, a_{t:t+N})||_1, g\in \{\text{endgoal}, \text{subgoal-}t\}, \\
     & R_a(a_{t:t+N}) := - || a^*_{t:t+N} - a_{t:t+N}||_1, \\
     & R_\text{tot}(a_{t:t+N}, o_t) := R_g(a_{t:t+N}, o_t) + 0.5 R_a(a_{t:t+N})
-\end{align}
+\end{aligned}
 $$
 
 在推理的时候，给定一个固定的任务描述和观察值 $s_t$ ，模型会为不同的候选动作 $\{a^{(1)}_{t:t+N},\dots,a^{(N)}_{t:t+N}\}$ 分配比较分数，从而使 VLA 能够区分这些动作的相对质量，从而在 DPO 过程中鼓励 step-wise 探索。
@@ -122,7 +124,7 @@ $$
 **3.3. Training**
 
 $$
-\begin{align}
+\begin{aligned}
         \small
         L_{\text{DPO-FM}} = & -\mathbb{E}_{\tau\sim \mathcal{U}(0, 1), (a^W_{t:t+N}, a^L_{t:t+N}, o_t, I) \sim D_.} \nonumber \\
         \log \sigma \Big( &-\beta  \Big[
@@ -130,7 +132,7 @@ $$
         &-  \underbrace{\|A(a^W_{t:t+N}, o_t, I, \tau; \theta_{\text{r}}) - v^W_\tau\|_2^2}_{\text{Winning reference loss}} + \underbrace{\|A(a^L_{t:t+N}, o_t, I, \tau; \theta_{\text{r}}) - v^L_\tau \|_2^2}_{\text{Losing reference loss}}
     \Big]
 \Big).
-    \end{align}
+    \end{aligned}
 $$
 
 action expert 参数经过随机初始化后，与 NORA VLA 参数联合训练，采用组合式 flow-matching 损失函数对 action expert 输出进行优化，并通过交叉熵损失函数对 NORA 的 FAST+ 输出 token 进行评估。
@@ -217,3 +219,6 @@ Ground-Truth-Action 奖励机制对真实机器人提供的益处有限。在 �
 
 强制模型持续遵循单一标注轨迹，可能会在机器人执行未知场景时引入不必要的行为干扰。通过将子目标/目标信息与 GTA 结合构建训练数据集 $\longrightarrow$ 提供了额外的上下文信号，帮助机器人选择合适的轨迹来完成任务。
 
+## 我想尝试的方向
+
+能否从预训练视觉世界模型出发，针对特定环境或机器人微调一个奖励预测器，再给策略采样出的多个动作块评分？这是我读完后想尝试的方向，还需要在自己的任务上验证。

@@ -1,4 +1,6 @@
-# Cosmos Policy: Fine-Tuning Video Models For Visuomotor Control And Planning
+# Cosmos Policy 论文解读：视频模型的控制与规划
+
+论文原题：Cosmos Policy: Fine-Tuning Video Models For Visuomotor Control And Planning
 
 ![](images/CosmosPolicy/CosmosPolicy-1.png)
 
@@ -71,9 +73,11 @@ world model 偏现代性 / 规模化工作：
 **Cosmos video model.**
 
 Cosmos-Predict2-2B-Video2World: <font color=red>一种潜在视频扩散模型，该模型以**起始图像**和**文本描述**作为输入，将图像模态输入用 Wan2.1 spatiotemporal VAE tokenizer 编码成连续数值型 tokens, 同时将文本模态输入编码成 T5-XXL embeddings 作为 condition, 在 EDM 去噪评分匹配公式预训练下，能够预测后续帧以生成短视频</font> $\Longrightarrow$ <font color=blue>视频生成模型的输入范式<u>本身没有完美地 match</u> VLA 模型输入范式：缺少 proprioception 模态输入数据；同时没有 multi-view 多视角输入</font>
+
 $$
 \mathcal{L}(D_\theta,\sigma)=\mathbb{E}_{\mathbf{x}_0,\mathbf{c},\mathbf{n}}\left[\left\|\underbrace{D_\theta}_{\text{DiT}}(\underbrace{\mathbf{x}_0}_{图像编码连续\text{tokens}}+\underbrace{\mathbf{n}}_{标准正态分布};\underbrace{\sigma}_{噪声水平},\underbrace{\mathbf{c}}_{文本输入\text{embeddings}})-\mathbf{x}_0\right\|_2^2\right]
 $$
+
 内部实现上：
 
 - 通过交叉注意力机制对 $\mathbf{c}$ 进行 $D_{\theta}$ 条件处理
@@ -95,9 +99,11 @@ $$
 - 世界模型能够根据当前状态和动作预测未来状态，从而近似真实环境的动态变化。
 
 - 价值函数：
+
   $$
   V^\pi(s)=\mathbb{E}_{\tau\thicksim\pi}\left[\sum_{k=t}^H\gamma^{k-t}R(s_k,a_k)\mid s_t=s\right]\mathbb{E}_{\tau\thicksim\pi}\left[\gamma^{H-t}R(s_H,a_H)\mid s_t=s\right]\quad\text{结合稀疏奖励设置}
   $$
+
   仅采用 Monte Carlo returns 蒙特卡洛回报: <font color=red>将每次 rollout 中的状态转移标注成为观测到的回报 $\gamma^{H-t}R(s_H,a_H)$</font>.
 
 **4 COSMOS POLICY: ADAPTING VIDEO MODEL FOR CONTROL & PLANNING**
@@ -112,7 +118,7 @@ $$
 
 <font color=green>对于一个 $(1+\frac{T}{4})\times\frac{H}{8}\times\frac{W}{8}\times 16$ 的 latent frames 序列，最初对应视频中的图像，通过在现有图像 latent frames 之间插入新的 latent frames $\longrightarrow$ 将新增的机器人状态 / 动作块 / 状态值模态 / 来自其他摄像机视角的图像进行交错排列</font>
 
-"To encode the new modalities as latent frames, we fill each $H^{\prime}\times W^{\prime}\times C^{\prime}$ latent volume with normalized and duplicated copies of the robot proprioception, action chunk, or value (where normalization simply consists of rescaling to $[−1,+1]$)."
+论文原文："To encode the new modalities as latent frames, we fill each $H^{\prime}\times W^{\prime}\times C^{\prime}$ latent volume with normalized and duplicated copies of the robot proprioception, action chunk, or value (where normalization simply consists of rescaling to $[−1,+1]$)."
 
 $\longrightarrow$ <font color=red>将一些新的 / 非图像模态的数据编码以兼容 latent frames 序列的做法：(1) 将数据归一化到 $[−1,+1]$ 范围；然后（2）通过复制的方式进行填充，得到 $H^{\prime}\times W^{\prime}\times C^{\prime}$ 浅层张量.</font>
 
@@ -134,6 +140,8 @@ $\longrightarrow$ 该序列中模态的排序表示为 $(s,a,s^{\prime},V(s^{\pr
 - 长度为 $K$ 的动作块 $a$ :【动作块】
 - 在 $t+K$ 时刻的状态 $s^{\prime}$ :【未来机器人本体感觉 + 未来手腕摄像头图像 + 未来第一第三人称摄像头图像 + 未来第二第三人称摄像头图像】
 - 价值 $V(s^{\prime})$: 【未来状态值】
+
+> **我的疑问**：为什么复制填充就足以让视频模型处理本体、动作和价值？这种做法不需要额外的可学习编码模块，与作者尽量复用原有模型的目标一致。我曾把这些填充后的表示类比为承载全局信息的 `[CLS]` token，但这只是帮助理解的类比；它是否保留了预训练视觉表征的统计特性，还需要进一步验证。
 
 **4.2 JOINT TRAINING OF POLICY, WORLD MODEL, & VALUE FUNCTION**
 
@@ -214,7 +222,7 @@ rollout dataset 收集：多样化初始条件 / 记录轨迹 / 记录成功-失
 | Method                | Training Strategy  | GPUs     | Training Time | Gradient Steps   | Batch Size          | Notes                  |
 | --------------------- | ------------------ | -------- | ------------- | ---------------- | ------------------- | ---------------------- |
 | Cosmos Policy         | Fine-tuning        | 8 × H100 | 48 hours      | 50K              | 200                 | Action chunk = 50      |
-| $\pi_{0.5}$ / $\pi_0$ | Fine-tuning        | 8 × H100 | 48 hours      | 400K             | 256                 | Faster iteration speed |
+| [$\pi_{0.5}$](Pi-05.md) / $\pi_0$ | Fine-tuning        | 8 × H100 | 48 hours      | 400K             | 256                 | Faster iteration speed |
 | OpenVLA-OFT+          | Fine-tuning        | 8 × H100 | 48 hours      | 32K              | 96 (grad. acc. = 4) | Slower iteration speed |
 | Diffusion Policy      | Train from scratch | 1 × H100 | 48 hours      | 72K (190 epochs) | 350                 | ~150M params           |
 
@@ -224,7 +232,9 @@ rollout dataset 收集：多样化初始条件 / 记录轨迹 / 记录成功-失
 
 ![](images/CosmosPolicy/CosmosPolicy-4.png)
 
-"OpenVLA-OFT+ often reaches in between two candies rather than directly going for one; we hypothesize that its L1 regression of actions leads to inaccurate modeling of the action distribution in tasks with high multimodality." $\longrightarrow$ 在存在多个同样合理但彼此差异较大的动作选择时，用 L1 回归学习确定性动作会不可避免地产生 "均值化" 行为，导致机器人执行一个在物理上无效的折中动作（例如伸向两颗糖之间），从而无法正确建模高多模态的动作分布。
+作者对实验现象的猜测（原文）："OpenVLA-OFT+ often reaches in between two candies rather than directly going for one; we hypothesize that its L1 regression of actions leads to inaccurate modeling of the action distribution in tasks with high multimodality."
+
+> **我的理解**：当多个动作选择同样合理、但彼此差异较大时，确定性的动作回归可能产生折中预测，例如伸向两颗糖之间。这帮助我理解作者对 L1 回归的猜测；这里讨论的是一种可能的解释。
 
 > Q2: Cosmos Policy 的不同组件有多重要？
 
@@ -232,7 +242,7 @@ $\longrightarrow$ 添加 mask 辅助学习目标消融 / 替换权重进行预�
 
 ![](images/CosmosPolicy/CosmosPolicy-5.png)
 
-Real-world ALOHA robot + 从头训练 Cosmos Policy: "折叠衬衫" 任务中平均得分 80.8 分，比完整版 Cosmos Policy 低 18.7 分。定性分析显示，从头训练的变体存在抖动动作，长期使用可能损伤机器人，因此我们终止了对该变体的进一步评估。
+论文中的真机消融（ALOHA robot + 从头训练 Cosmos Policy）： "折叠衬衫" 任务中平均得分 80.8 分，比完整版 Cosmos Policy 低 18.7 分。作者在定性分析中观察到，从头训练的变体存在抖动动作；考虑到长期使用可能损伤机器人，论文团队终止了对该变体的进一步评估。
 
 **5.3 EVALUATIONS OF COSMOS POLICY WITH MODEL-BASED PLANNING**
 

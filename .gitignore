@@ -1,1 +1,10 @@
-docs/build/
+# Generated documentation
+/docs/build/
+
+# Local Python environment and caches
+/.venv/
+__pycache__/
+*.py[cod]
+
+# macOS metadata
+.DS_Store

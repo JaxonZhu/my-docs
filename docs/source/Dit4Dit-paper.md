@@ -1,4 +1,6 @@
-# Dit4Dit: Jointly Modeling Video Dynamics And Actions For Generalizable Robot Control
+# DiT4DiT 论文解读：联合建模视频动态与动作
+
+论文原题：Dit4Dit: Jointly Modeling Video Dynamics And Actions For Generalizable Robot Control
 
 **背景**
 
@@ -8,19 +10,15 @@
 
 现有的生成时视频模型已探究**将视觉动力学特性与动作控制信号共同投射至共享的潜在空间** $\longrightarrow$ 利用视频模型**合成**额外训练数据 (forward simulation) / 通过提取潜在表征来训练用于动作预测的**逆动力学模型** (inverse dynamics) $\longrightarrow$ <font color=orange>现有做法：多阶段 / 非端到端 / 间接控制动作生成</font>
 
-> [*Cosmos Policy*] 通过微调预训练视频扩散模型，可进一步简化适应过程：该模型直接输出机器人动作及未来状态预测，并将其编码为原生视频扩散流程中的连续潜在帧。
+> [*Cosmos Policy*](CosmosPolicy-paper.md) 通过微调预训练视频扩散模型，可进一步简化适应过程：该模型直接输出机器人动作及未来状态预测，并将其编码为原生视频扩散流程中的连续潜在帧。
 >
-> [*mimic-video*] 将预训练视频骨干网络与独立的 flow-matching 动作解码器相结合，并基于 <u>intermediate flow time 中间流时间点</u>的部分去噪视频潜在变量对策略进行条件化处理。
-
----
+> [*mimic-video*](mimic-video-paper.md) 将预训练视频骨干网络与独立的 flow-matching 动作解码器相结合，并基于 <u>intermediate flow time 中间流时间点</u>的部分去噪视频潜在变量对策略进行条件化处理。
 
 ---
 
 **问题**
 
 生成式视频模型在 robotics manipulation 任务上的潜能有多大？是否可以作为 robot control 的稳定先验 backbone？视频生成任务本身能否作为鲁棒的 action policy 的有效训练代理目标？如何提取视频模型所学习到的时空表征并与动作生成相结合?
-
----
 
 ---
 
@@ -56,7 +54,7 @@
 
 - 视频生成代理任务使模型能够更快地收敛至高性能策略，最高可达 7 倍速率
 
-  在训练过程早期捕获关键操作线索<font color=blue">（在训练早期成功率上涨特别高）</font>
+  在训练过程早期捕获关键操作线索<font color=blue>（在训练早期成功率上涨特别高）</font>
 
 - 具有稳定扩展性：相较于 semantic-centric 的方法，其数据效率显著更高，最高可达 10 倍
 
@@ -114,7 +112,7 @@ $$
 
 $$
 \begin{aligned}
-\mathcal{L}_{t}^{\mathrm{total}} & =\underbrace{\mathbb{E}_{\tau_a,\epsilon}\left[\left\|v_\phi^\mathrm{action}\left(\mathbf{a}_t^{\tau_a},\tau_a\mid\mathbf{h}_t^{\tau_f},s\right)-\left(\epsilon-\mathbf{a}_t^0\right)\right\|^2\right]\right]}_{\text{Action Flow Mauching Loss}} +\lambda\underbrace{\mathbb{E}_{\tau_v,z}\left[\left\|v_\theta^\mathrm{video}\left(\mathbf{z}_{t+1}^{\tau_v},\tau_v\mid\mathbf{z}_t^0,l\right)-(z-\mathbf{z}_{t+1}^0)\right\|^2\right]}_{\text{Video Flow Malching Loss}}
+\mathcal{L}_{t}^{\mathrm{total}} & =\underbrace{\mathbb{E}_{\tau_a,\epsilon}\left[\left\|v_\phi^\mathrm{action}\left(\mathbf{a}_t^{\tau_a},\tau_a\mid\mathbf{h}_t^{\tau_f},s\right)-\left(\epsilon-\mathbf{a}_t^0\right)\right\|^2\right]}_{\text{Action Flow Mauching Loss}} +\lambda\underbrace{\mathbb{E}_{\tau_v,z}\left[\left\|v_\theta^\mathrm{video}\left(\mathbf{z}_{t+1}^{\tau_v},\tau_v\mid\mathbf{z}_t^0,l\right)-(z-\mathbf{z}_{t+1}^0)\right\|^2\right]}_{\text{Video Flow Malching Loss}}
 \end{aligned}
 $$
 
@@ -129,8 +127,6 @@ $$
 [*Action DiT Sampling*]
 
 采样新的噪声潜在变量，并在固定特征提取时间步 $\tau_f$ 严格评估视频主干网络进行单次前向传播 $\longrightarrow$ 通过钩子机制 $\mathcal{H}$ 截取中间激活值，生成稳定且确定性的隐藏表示 $\mathbf{h}_t^{\tau_f}$ $\longrightarrow$ 将动作轨迹从噪声 $\hat{\mathbf{a}}_t\sim\mathcal{N}(0,I)$ 初始化 + $\mathbf{h}_t^{\tau_f}$ 和机器人本体感觉状态 $s$ $\longrightarrow$ $N_a$ 个数值积分步骤 $\longrightarrow$ 预测动作速度场 $\longrightarrow$ 最终获得精确的预测动作 $a^t$ 。
-
----
 
 ---
 
@@ -158,7 +154,7 @@ $$
 
 ---
 
-（2）Baselines: $\pi_{0.5}$ / CogVLA / GR00T series / Qwen3DiT
+（2）Baselines: [$\pi_{0.5}$](Pi-05.md) / CogVLA / GR00T series / Qwen3DiT
 
 - Qwen3DiT: 将 Qwen3-VL 2B 基础模型与 DiT4DiT 中使用的相同动作 DiT 相结合
 
@@ -168,7 +164,7 @@ $$
 
   首先使用包含 241450 条轨迹的仿真 GR1 训练数据集的子集对 DiT4DiT 进行预训练，以获取基础时空先验知识；随后在远程操控的真实世界 G1 演示数据上进行微调。
 
-  将本方法与 GR00T-N1.5 及 Qwen3DiT 进行对比。为确保严格的消融实验设计，Qwen3DiT 采用了与 DiT4DiT 完全相同的预训练和微调流程。相比之下，GR00T-N1.5 模型直接采用官方预训练权重初始化，在进行目标真实世界任务微调前已具备更庞大的先验数据规模优势。具体而言，本研究的预训练数据量仅相当于官方 GR00T-N1.5 模型所用训练数据规模的约 $15\%$ 。
+  作者将 DiT4DiT 与 GR00T-N1.5 及 Qwen3DiT 进行对比。为确保严格的消融实验设计，Qwen3DiT 采用了与 DiT4DiT 完全相同的预训练和微调流程。相比之下，GR00T-N1.5 模型直接采用官方预训练权重初始化，在进行目标真实世界任务微调前已具备更庞大的先验数据规模优势。具体而言，该实验中 DiT4DiT 的预训练数据量仅相当于官方 GR00T-N1.5 模型所用训练数据规模的约 $15\%$ 。
 
 ---
 
@@ -204,8 +200,6 @@ $$
 
   > 可见，在 world modeling 中，最优 conditioning 不是：fully predicted future / reconstructed trajectory, 而是 "early-stage latent belief about future".
   >
-
----
 
 ---
 

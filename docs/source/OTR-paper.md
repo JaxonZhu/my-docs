@@ -1,4 +1,6 @@
-# Optimal Transport For Offline Imitation Learning
+# OTR 论文解读：用最优传输标注离线奖励
+
+论文原题：Optimal Transport For Offline Imitation Learning
 
 ![](images/OTR/OTR-1.png)
 
@@ -132,7 +134,7 @@ OTR 只是 reward learning 方法 $\Longrightarrow$ 适配任何 Offline RL 算�
 
 > 对奖励做了 reward scaling $\Longrightarrow$ Offline RL 算法对 reward 的范围敏感
 
-**Implementation** 作者声称：<font color=orange>“我们的实现方案具有高效计算特性，仅需 *约 1 分钟* 即可完成包含 100 万次 transitions（或 1000 个时长为 1000 的 episodes ）的数据集标注。对于更大规模的问题， OTR 可通过并行处理数据集中的 episodes 进一步扩展。我们对 OTR 的实现及 baselines 模型的重新实现均保持高效计算。尽管如此， IQL 的训练时间仍约为 20 分钟，因此 OTR 对现有 Offline RL 算法的奖励标注仅增加了相对较小的开销。”</font>
+**Implementation** 作者对实现开销的说明（译文）：<font color=orange>“我们的实现方案具有高效计算特性，仅需 *约 1 分钟* 即可完成包含 100 万次 transitions（或 1000 个时长为 1000 的 episodes ）的数据集标注。对于更大规模的问题， OTR 可通过并行处理数据集中的 episodes 进一步扩展。我们对 OTR 的实现及 baselines 模型的重新实现均保持高效计算。尽管如此， IQL 的训练时间仍约为 20 分钟，因此 OTR 对现有 Offline RL 算法的奖励标注仅增加了相对较小的开销。”</font>
 
 <font color=blue>作者在论文的脚注做了说明：使用的是一块 NVIDIA 3080 的 GPU, 那么结合后面附录的神经网络层数可以猜测这个是 state-based 的数据集，没有设计到 image-based / vision-language based 的数据集标注效率讨论 $\Longrightarrow$ 多模态 + scaling 场景下的奖励标注是一个可以继续调查的点。</font>
 
@@ -167,3 +169,4 @@ OTR 只是 reward learning 方法 $\Longrightarrow$ 适配任何 Offline RL 算�
 - OTR 会在 expert 缺失情况下表现弱。
 - 采用的 Wasserstein 距离公式可通过扩展应用 Gromov-Wasserstein 距离来实现 cross-domain 模仿学习，从而对齐来自不同空间的专家演示与离线轨迹。
 
+> **延伸问题**：既然这种距离反映了轨迹与专家状态分布的偏离，能否进一步用于分布外状态检测？这只是我的设想。另一个问题是如何把方法扩展到图像等高维观测，后续可以结合 [AILOT 的意图表征](AILOT-paper.md) 继续看。

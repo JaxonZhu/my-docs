@@ -1,4 +1,8 @@
-# RLINF-VLA: RLinf-VLA 阅读 思考
+# RLinf-VLA 论文解读：VLA 强化学习训练框架
+
+论文原题：RLINF-VLA: A Unified And Efficient Framework For VLA+RL Training
+
+阅读版本：arXiv:2510.06710v1。
 
 **Abstract**
 
@@ -42,7 +46,7 @@ RLinf-VLA 研究总结出了一些实践经验：
 
 **2 PRELIMINARY FOR REINFORCEMENT LEARNING**
 
-> 这一部分介绍的是基本算法知识，这里把后面的 PPO 和 GRPO 合在一个部分了。
+> **笔记编排**：这一部分介绍基本算法知识。我把论文后面的 PPO 和 GRPO 内容合并到了这里。
 
 **POMDP**
 
@@ -176,7 +180,7 @@ $$
 
 **3.2.2 MODEL TYPE**
 
-根据 `model_name` 选择 base VLA —— OpenVLA (Maniskill) / OpenVLA-OFT (Maniskill / LIBERO) / $\pi_{0.5}$
+根据 `model_name` 选择 base VLA —— OpenVLA (Maniskill) / OpenVLA-OFT (Maniskill / LIBERO) / [$\pi_{0.5}$](Pi-05.md)
 
 **3.2.3 UNIFIED INTERFACE**
 
@@ -313,6 +317,8 @@ base model 是基于 LIBERO 的 130 个任务的演示轨迹微调得到 $\longr
 
 step-level 的价值估计始终能获得更高的成功率和更低的价值损失，这表明其学习效果更佳且策略改进速度更快。这种优势并非特定于某项任务：在 LIBERO -Goal / Maniskill 基准测试中都观察到了类似结果。
 
+> **我的理解**：chunk 级价值估计把整个动作块当成一个宏动作，难以区分块内各步的收益差异；action 级估计则从同一观测预测块内各步的价值，为优势估计提供更细的粒度。这可能有助于理解图中的价值损失差异，但只是对实验现象的解释，不能据此认定单一原因。
+
 ![](images/RLinf-VLA/RLinf-VLA-12.png)
 
 **Partial reset 环境重置 trick 可以提升样本效率**。由于优化目标是 “一次成功” ，Partial Reset 能显著提升成功率。在相同训练轮数下，Partial Reset 模式的成功率始终高于 Fixed Episode Length 模式。无论模型类型如何，这一趋势都表现明显。
@@ -337,6 +343,8 @@ LIBERO-Goal 实验中采用轨迹长度归一化后，相比未归一化设置�
 
 **5.4 REAL-WORLD DEPLOYMENT**
 
+> **阅读疑问**：我阅读的 v1 版本在真机实验部分有些细节没有说清楚，复现时还需要结合实现继续核对。
+
 通过校准相机与机器人之间的相对姿态，确保其与仿真环境保持一致 ==> 除了仿真与现实世界的基础校准外，未采用任何额外的 sim2real 的适配技术。
 
 baseline: *OpenVLA 的 SFT 版本*，训练 OpenVLA 在仿真环境中处理从数百到 64k 条专家轨迹（126 万样本）的数据集。实验发现性能在约 1.6 万条轨迹时趋于平稳，因此采用 1.6 万轨迹的 SFT checkpoint 点作为基准，用于对比强化学习的微调方法。
@@ -350,4 +358,6 @@ baseline: *OpenVLA 的 SFT 版本*，训练 OpenVLA 在仿真环境中处理从�
 **6 CONCLUSION**
 
 **7 FUTURE WORK**
+
+在我阅读的 v1 版本中，作者将接入 SAC 相关算法列为后续工作。
 

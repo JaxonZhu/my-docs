@@ -1,4 +1,6 @@
-# ACG: Action Coherence Guidance for Flow-based VLA models
+# ACG 论文解读：推理阶段的动作连贯性引导
+
+论文原题：ACG: Action Coherence Guidance for Flow-based VLA models
 
 ![](images/ACG/ACG-1.png)
 
@@ -20,7 +22,7 @@
 
 解决目标：参考 diffusion / flow-matching based 方法文献，旨在 training-free 前提下提升动作连贯性的引导
 
-$\Longrightarrow$ 一个具有代表性的例子是**无分类器引导（Classifier-Free Guidance，CFG）**。该方法已在图像与视频生成领域得到广泛应用，<font color=blue>同时也在 $\pi_{0.6}^{\ast}$ 中使用</font>。CFG 的核心思想在于，<font color=red>通过引导采样结果远离无条件生成的方向</font>，从而显著强化条件信号的影响力。
+$\Longrightarrow$ 一个具有代表性的例子是**无分类器引导（Classifier-Free Guidance，CFG）**。该方法已在图像与视频生成领域得到广泛应用，<font color=blue>同时也在 [$\pi_{0.6}^{\ast}$](Pi-06-star.md) 中使用</font>。CFG 的核心思想在于，<font color=red>通过引导采样结果远离无条件生成的方向</font>，从而显著强化条件信号的影响力。
 
 作者提出 ACG: 一种简单而有效的 test-time guidance 策略，可增强 flow-matching based 策略中行动一致性。
 
@@ -38,7 +40,7 @@ $\Longrightarrow$ 一个具有代表性的例子是**无分类器引导（Classi
 
 受 CFG 启发，近期存在探索机器人控制中的引导策略的研究，通过<font color=green>移除目标条件 goal-condition 生成负面引导</font>，从而在 goal-condition 模仿学习中提升性能。然而，在 VLA 模型中，用语言条件替代 CFG 常导致行为不稳定，因为动作分布可能因语言指令的细微差异而产生显著变化。
 
-> 这个现象在 $\pi_{0.6}^{\ast}$ 中也提到了：$\beta$ 过大会把动作推到分布边缘，导致过于激进 / 不稳定。
+> 这个现象在 [$\pi_{0.6}^{\ast}$](Pi-06-star.md) 中也提到了：$\beta$ 过大会把动作推到分布边缘，导致过于激进 / 不稳定。
 
 在视觉生成领域，语言条件对模型的引导同样存在挑战。具体而言， CFG 往往过度依赖文本条件，导致生成的样本缺乏真实感且多样性不足。为解决这一问题，近期研究探索了<font color=red>扰动引导</font>技术，该技术通过使用模型的**有意降质版本**（而非无条件模型）来引导预训练扩散模型提升生成质量。这种降质可通过<u>单元丢弃</u>或<u>扰动注意力图</u>来实现。
 
@@ -52,7 +54,7 @@ $\Longrightarrow$ 一个具有代表性的例子是**无分类器引导（Classi
 
 > “时间聚合” **在推理阶段，将整个时间区间 $[0,1]$ 上多个时间点的向量场输出进行累积（积分）**。每一个时间步都要一次完整的神经网络前向，网络输入包含 $x_k$ 和 $t_k$ ，最终输出是**所有时间步结果的累积**。因为时间 condition 的网络无法并行前向推理，也就是 $x_{k+1}$ 依赖于 $x_{k}$ 因此时间维度上不可并行且 GPU 利用率在小 batch / 长轨迹时非常低。
 
-本研究首次实现了：将扰动引导引入机器人控制领域，同时明确解决了动作块内部的动作连贯性问题。
+作者称，ACG 首次将扰动引导引入机器人控制领域，并针对动作块内部的连贯性问题进行改进。
 
 **III. PRELIMINARIES**
 
@@ -75,13 +77,13 @@ $\mathbf{A}_t^{\tau+\delta}=\mathbf{A}_t^\tau+\delta v_\theta(\mathbf{A}_t^\tau,
 
 *B. Classifier-Free Guidance for Flow Matching Policy*
 
-与 $\pi_{0.6}^{\ast}$ 类似，这里也对理论上的 CFG 公式进行推导，最后得到：
+与 [$\pi_{0.6}^{\ast}$](Pi-06-star.md) 类似，这里也对理论上的 CFG 公式进行推导，最后得到：
 
 $$
 \pi^{\mathrm{CFG}(\lambda)}(\mathbf{A}_t|\mathbf{o}_t,\ell_t)\propto\pi_\theta(\mathbf{A}_t|\mathbf{o}_t,\ell_t)\left(\frac{\pi_\theta(\mathbf{A}_t|\mathbf{o}_t,\ell_t)}{\pi_\theta(\mathbf{A}_t|\mathbf{o}_t,\emptyset)}\right)^\lambda = \pi_\theta(\mathbf{A}_t|\mathbf{o}_t,\ell_t)^{\lambda+1}\cdot \pi_\theta(\mathbf{A}_t|\mathbf{o}_t,\emptyset)^{\lambda}
 $$
 
- 其中 $\empty$ 表示无条件情况下动作分布，对应 $\ell_{t}$ 有条件，也就是在 Goal-Condition Behavior Cloning 设定下，语言 $\ell_{t}$ 即条件 $\Longrightarrow$ VLA 看成是条件生成模型。
+ 其中 $\emptyset$ 表示无条件情况下动作分布，对应 $\ell_{t}$ 有条件，也就是在 Goal-Condition Behavior Cloning 设定下，语言 $\ell_{t}$ 即条件 $\Longrightarrow$ VLA 看成是条件生成模型。
 
 该公式表明，$\lambda > 0$ 情况下 CFG <u>放大了条件分布的贡献，同时使采样过程偏离无条件分布</u>。CFG 通过将去噪方向从无条件向量场推向条件向量场，从而增强了条件生成能力。
 

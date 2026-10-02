@@ -1,4 +1,6 @@
-# GR-RL: Going Dexterous and Precise for Long-Horizon Robotic Manipulation
+# GR-RL 论文解读：长程精细操作中的强化学习
+
+论文原题：GR-RL: Going Dexterous and Precise for Long-Horizon Robotic Manipulation
 
 ![](images/GR-RL/GR-RL-0.png)
 
@@ -105,13 +107,13 @@ GR-RL 使用 Qwen2.5-VL-3B-Instruct 作为 VLM backbone，仅使用 VLM 层后�
 训练 critic 的奖励函数过程如下，使用该奖励函数对成功的轨迹进行标注：
 
 $$
-\begin{equation}
+\begin{aligned}
     r(\mathbf{o}_t, l, \mathbf{s}_t, \mathbf{a}_{t}) =
     \begin{cases}
         \gamma^{T-t}\mathbb{I}(\tau), & t > T-k, \\
         0, & t \leq T-k,
     \end{cases}
-\end{equation}
+\end{aligned}
 $$
 
 - 对于成功的轨迹：最后一步奖励标记为 1 ，从后向前以折扣因子 $\gamma$ 按步数指数递减 $k$ 步，其他步奖励都是 0
@@ -120,7 +122,7 @@ $$
 
 - 对成功的轨迹进行类似 Hindsight **后视经验回放 HER** 的增广：
 
-  最关键的就是这句: "Suppose frames $m_i, 0\leq i< M$ are marked as retry keyframes in a successful trajectory $\tau_{0:T}$, we can augment $M$ failed trajectories $\tau_{0:m_i}, 0\leq i<M$ in addition to the original successful one."
+  我理解这一步时，主要对照了论文中的这句话（原文）："Suppose frames $m_i, 0\leq i< M$ are marked as retry keyframes in a successful trajectory $\tau_{0:T}$, we can augment $M$ failed trajectories $\tau_{0:m_i}, 0\leq i<M$ in addition to the original successful one."
 
   如图所示：取一条成功轨迹的中间部分作为 retry keyframes $m_i, 0\leq i< M$ ，以这些 retry keyframes 为终点的轨迹可能是<font color=red>**不完整 / 不全局成功 / 可能局部成功**</font>的轨迹，根据上面的奖励函数标定规则<font color=green>**都设置成全 0 奖励数值**</font>。因此有 $M$ 个 retry keyframes 就能衍生出 $M$ 条失败的 episodes 。
 
@@ -131,9 +133,9 @@ $$
 在获得任务进度模型后，让 $Q_{\phi}$ 做前向推理来计算其类别级分布的均值，作为数据集中所有转换的进度 $\rho$ 。
 
 $$
-\begin{equation}
+\begin{aligned}
     \rho_t =\mathtt{mean}(Q_{\phi}(\mathbf{o}_t, l, \mathbf{s}_t, \mathbf{a}_t)).
-\end{equation}
+\end{aligned}
 $$
 
 若在时间步 $t$ 的序列 $\rho_{t:t+k}$ 中存在超过特定阈值 $\delta$ 的数值下降，则将样本 $(\mathbf{o}_t, l, \mathbf{s}_t, \mathbf{a}_t)$ 定义为次优 sub-optimal 样本，并将所有次优 sub-optimal 样本从数据集中剔除：使用过滤过的高优质数据用于策略克隆。
@@ -149,20 +151,20 @@ $$
 Online RL 在长程 / 精确性任务中表现困难 $\Longrightarrow$ 真实世界中极大探索空间 $\Longrightarrow$ 在潜空间进行结构化探索
 
 $$
-\begin{equation}
+\begin{aligned}
     \mathcal{L}(\pi_{\theta^{\prime}}) = \mathbb{E}_{(\mathbf{o}_t, l, \mathbf{s}_t)\sim \mathcal{D}} \left[-Q_{\phi^{\prime}}(\mathbf{o}_t, l, \mathbf{s}_t, \mathbf{\epsilon}_t) + c \max( \frac{1}{2}\Vert \mathbf{\epsilon}_t\Vert^2 - \beta, 0)\right], \mathbf{\epsilon}_t\sim \pi_{\theta^{\prime}}(\mathbf{o}_t, l, \mathbf{s}_t),
-\end{equation}
+\end{aligned}
 $$
 
 $$
-\begin{equation}
+\begin{aligned}
     \mathcal{L}(Q_{\phi^{\prime}}) = \mathtt{cross\_entropy}\left( Q_{\phi^{\prime}}(\mathbf{o}_t, l, \mathbf{s}_t, \mathbf{\epsilon}_t),  Q_{\phi}(\mathbf{o}_t, l, \mathbf{s}_t, \pi_{\theta}(\mathbf{o}_t, l, \mathbf{s}_t|\mathbf{\epsilon}_t))\right), \\
     \mathbf{\epsilon}_t\sim
     \begin{cases}
         \mathcal{N}(\mathbf{0}, \mathbf{1}) & \text{w.p. } 0.5, \\
         \pi_{\theta^{\prime}}(\mathbf{o}_t, l, \mathbf{s}_t) & \textrm{otherwise}.
         \end{cases}
-\end{equation}
+\end{aligned}
 $$
 
 - 构建一个噪声预测器 $\pi_{\theta}^{\prime}$ 用于产生动作块的 diffusion / flow 去噪过程的初始 noise 

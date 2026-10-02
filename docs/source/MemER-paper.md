@@ -1,4 +1,6 @@
-# MemER: Scaling Up Memory For Robot Control Via Experience Retrieval
+# MemER 论文解读：通过经验检索构建视觉记忆
+
+论文原题：MemER: Scaling Up Memory For Robot Control Via Experience Retrieval
 
 ![MemER-3](images/MemER/MemER-3.png)
 
@@ -8,7 +10,7 @@
 
 ​		"The ability to <font color=red>**form**</font> and <font color=green>**retrieve**</font> memories is a crucial step towards robots solving complex, multi-step tasks."
 
-​		人类依赖记忆执行任务 $\longrightarrow$ 本文目标：赋予 robotics 这种 memory 的能力便于执行 long-horizon 的能力
+​		人类依赖记忆执行任务 $\longrightarrow$ MemER 的目标：赋予机器人形成和检索记忆的能力，以完成长程任务
 
 【现状】
 
@@ -18,7 +20,7 @@ $\Longrightarrow$ 将长期历史观测轨迹直接作为 condition: (1) <font c
 
 <font color=green>（2）微调预训练模型，借助原生 memory 能力实现动作预测</font> $\longrightarrow$ Sam2act: Integrating visual foundation model with a memory architecture for robotic manipulation
 
-> 这些方法最多仅包含 $N=10$ 个最近的上下文帧，本文可选择**纳入跨越整个事件**的任务相关帧，此类帧可能包含超过 1000 帧。
+> 作者在相关工作对比中指出，这些方法最多仅包含 $N=10$ 个最近的上下文帧，MemER 可选择**纳入跨越整个事件**的任务相关帧，此类帧可能包含超过 1000 帧。
 
 作者认为：策略必须学会从完整的历史上下文中<font color=red>**筛选**</font>并<font color=red>**存储**</font>任务相关的信息，以防止在需要<u>长距离依赖关系</u>的任务上出现<u>内存占用激增</u>的情况。
 
@@ -31,7 +33,7 @@ $\Longrightarrow$ 将长期历史观测轨迹直接作为 condition: (1) <font c
 - high-level policy [Qwen2.5-VL-7B-Instruct] 经过训练，能够根据其经验<font color=red>选择并追踪</font>先前相关的关键帧；
 - high-level policy [Qwen2.5-VL-7B-Instruct] 在生成 <u>low-level policy 执行的文本指令，或者 subtask 内容</u>时，采用从其固定近期上下文中<font color=red>选定的关键帧</font>和<font color=red>最新帧</font>；
 - high-level policy [Qwen2.5-VL-7B-Instruct] VLM 具有强先验知识，基于此：<font color=green>仅需 50 次带有<u>子任务注释</u>的远程操作机器人演示，即可使这些 VLMs 适应完成特定的记忆型任务</font>。
-- low-level policy [$\pi_{0.5}$] 生成动作块序列
+- low-level policy [$\pi_{0.5}$](Pi-05.md) 生成动作块序列
 
 【实验】3 个真实世界长程操作任务，时限：分钟级别
 
@@ -105,7 +107,7 @@ $\Longrightarrow$ 将长期历史观测轨迹直接作为 condition: (1) <font c
 
 **Training the Low-Level Policy.**
 
-​		在使用 DROID 数据集上微调的 $\pi_{0.5}$ 数据集进一步用自己数据微调
+​		在使用 DROID 数据集上微调的 [$\pi_{0.5}$](Pi-05.md) 数据集进一步用自己数据微调
 
 ​		仅需 50 个长程演示轨迹及 10-15 个针对三项任务的干预案例即可
 
@@ -126,15 +128,19 @@ $\Longrightarrow$ 将长期历史观测轨迹直接作为 condition: (1) <font c
 **Model Merging.**
 
 ​		经过精细的 VLM 微调后，由于训练数据仅包含最优专家演示， high-level policy 在应对 low-level policy <font color=red>冻结和重试行为</font>时往往会丧失部分鲁棒性。<font color=green>若将通用预训练模型的权重与该模型在特定任务数据上微调后的权重进行线性插值，既能保持预训练模型的鲁棒性和泛化能力，又可实现对新任务的适应性调整。</font>
+
 $$
 \theta=(1-\alpha)\cdot\theta_{\mathrm{pre}}+\alpha\cdot\theta_{\mathrm{ft}}
 $$
+
 去微调过后的 $\alpha=0.8$ 权重的参数和剩下 $0.2$ 比重的原预训练模型参数直接 merge
 
 **Closed-Loop Deployment.**
+
 $$
 \pi(\boldsymbol{A_t}|o_{0:t})=\underbrace{\pi_l(\boldsymbol{A_t}|\boldsymbol{I_t},\boldsymbol{q_t},l_t^{\prime})}_{\text{2Hz}}\cdot\underbrace{\pi_h(l_t^{\prime},\boldsymbol{J_t}|\boldsymbol{I_{t-N+1:t}},\boldsymbol{K_t})}_{\text{1Hz}}
 $$
+
 在各自的服务器上运行这两种策略
 
 选择异步运行策略 $\longrightarrow$ 高层策略预测下一个子任务时，低层策略会根据最新预测结果进行调整 $\longrightarrow$ 提升部署过程中响应速度和稳定性
@@ -159,7 +165,7 @@ $$
 
 3. **Dust & Replace**
 
-   【任务】在这个任务中，机器人需要完成以下操作：从双层货架上取下物品、拿起吸尘器、对两个货架进行除尘，最后将物品放回原位。在除尘过程中，我们会将吸尘器放回一个位置，使得根据最近的操作记录难以判断哪个货架已经完成除尘。这项任务颇具挑战性，因为机器人需要同时记住两类信息：物品的原始位置，以及哪个货架（如果有的话）已经完成除尘。
+   【任务】在这个任务中，机器人需要完成以下操作：从双层货架上取下物品、拿起吸尘器、对两个货架进行除尘，最后将物品放回原位。在作者的实验设置中，机器人会在除尘过程中将吸尘器放回一个位置，使得根据最近的操作记录难以判断哪个货架已经完成除尘。这项任务颇具挑战性，因为机器人需要同时记住两类信息：物品的原始位置，以及哪个货架（如果有的话）已经完成除尘。
 
    【指标】任务完成度通过以下二元指标评估：每个物品在货架上正确更换的二元成功指标，以及每个货架完成除尘的二元成功指标，最高得分为 4 分。
 

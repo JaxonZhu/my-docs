@@ -1,4 +1,6 @@
-# Masked Depth Modeling for Spatial Perception
+# LingBot-Depth 论文解读：掩码深度建模与空间感知
+
+论文原题：Masked Depth Modeling for Spatial Perception
 
 ![](images/LingBot-Depth/Lingbot-Depth-1.png)
 
@@ -138,9 +140,11 @@ joint embedding architectures: *Self-supervised learning from images with a join
 > 但一旦进入 ConvStack Decoder: **token 被 reshape 成 feature map 再经过多次转置卷积 / 上采样等操作**。由于卷积本身是平移等变的，不知道绝对位置，因此网络无法区分出具体位置空间位置了。
 >
 > 假设某一层的特征维度是 $H\times W$ ，对每个像素位置 $(i,j)$ 构造归一化坐标: $u=\frac{j}{W-1}, v=\frac{i}{H-1}$, 通常 $u/v$ 范围都是 $[0,1]$. 接下来构造 UV 位置编码:
+>
 > $$
 > \mathrm{UV}_{pos}(i,j) = [\sin(2\pi u),\cos(2\pi u), \sin(2\pi v),\cos(2\pi v)]
 > $$
+>
 > 得到一个 4 维连续 / 平滑 / 周期的位置编码。
 >
 > 将 UV 编码 **concat 或 add** 到 feature map: $F^{\prime}=\mathrm{Concat}(F,\mathrm{UV})\quad\mathrm{or}\quad F^{\prime}=F+W_{uv}\mathrm{UV}$.
@@ -208,7 +212,7 @@ $\Longrightarrow$ 在 Blender 中配置了一对虚拟摄像机，并从 $0.05$ 
 
 ![](images/LingBot-Depth/Lingbot-Depth-6.png)
 
-从采集的数据集分布来看，基本满足当前 embodied 的验证环境，从数据分布可以得到预训练出来的 model 可以作为 robot policy 的一种 backbone 继续去（预）训练。
+> **我的判断**：作者采集的数据与具身任务常见的室内环境有较强关联，因此我觉得可以尝试把预训练模型作为 robot policy 的视觉主干。数据分布的关联是尝试的理由，实际效果仍需要验证。
 
 由于真实拍摄图像缺乏无缺失 missing-free 深度图 $\Longrightarrow$ 采用 FoundationStereo 方法计算左右红外配对的立体视差，从而生成伪深度标签 $\Longrightarrow$ 执行左右配对校验，并剔除深度图中不一致的像素值
 
@@ -216,7 +220,7 @@ $\Longrightarrow$ 在 Blender 中配置了一对虚拟摄像机，并从 $0.05$ 
 
 ![](images/LingBot-Depth/Lingbot-Depth-7.png)
 
-开源合成数据集不存在缺失的深度测量值 $\Longrightarrow$ 通过随机生成补丁化 tokens 来满足 $60\%-90\%$ 的预期掩码比例范围，且无需额外处理。对于现实世界中的开源数据集，其掩码策略同样以随机掩码采样为主，因为这些数据集的深度图相较于我们整理的数据更为完整。
+开源合成数据集不存在缺失的深度测量值 $\Longrightarrow$ 通过随机生成补丁化 tokens 来满足 $60\%-90\%$ 的预期掩码比例范围，且无需额外处理。对于现实世界中的开源数据集，其掩码策略同样以随机掩码采样为主，因为这些数据集的深度图相较于论文团队自行采集的数据更为完整。
 
 **4 Experiments**
 
@@ -278,3 +282,8 @@ Rokae XMate-SR5 机械臂 / X Hand-1 灵巧手 / Orbbec Gemini 335 RGB-D 相机
 
 由于深度数据严重失真，透明存储盒完全无法通过原始深度进行抓取，表现出成功率 N/A ；而模型通过生成几何上合理的深度估计，成功率达到 $50\%$ ，尽管在高度透明表面偶尔会出现误差。
 
+## 我的补充思考
+
+论文中的抓取实验先补全深度，再用独立的 RGB 和点云主干提取特征。我还想尝试另一条路径：直接复用 LingBot-Depth 编码器的 RGB-D 联合表征，接入动作生成模块。它的室内数据分布、上下文 tokens 和 `[CLS]` token 都让我觉得值得一试，但这仍是待验证的设想。
+
+另外，论文 Fig.14 的桌面纹理让我有些疑惑：原始深度图保留了条纹，补全后桌面更接近平面。仅凭图示，我还不能确定这些条纹对应真实起伏还是测量误差；这也是我想进一步核对的细节。

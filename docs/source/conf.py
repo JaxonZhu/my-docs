@@ -6,7 +6,7 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'JaxonZhu-Documents'
+project = 'JaxonZhu · 具身智能笔记'
 copyright = '2025, JaxonZhu'
 author = 'JaxonZhu'
 release = '0.1.0'
@@ -15,7 +15,6 @@ release = '0.1.0'
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-    'sphinx_markdown_tables', 
     "myst_parser",
     'sphinx.ext.mathjax',   # 添加数学公式支持
 ]
@@ -38,9 +37,16 @@ language = 'zh_CN'
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
-import sphinx_rtd_theme
 html_theme = "sphinx_rtd_theme"
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+html_title = project
+
+# 固定浏览器端公式渲染版本，避免 CDN 的主版本别名自动更新。
+mathjax_path = "https://cdn.jsdelivr.net/npm/mathjax@4.1.3/tex-mml-chtml.js"
+
+# 长公式在正文栏内横向滚动，避免窄屏下溢出或被截断。
+mathjax4_config = {"output": {"displayOverflow": "scroll"}}
 
 
-
+def setup(app):
+    # 全站侧栏包含 π 系列标题，即使正文没有公式也需要加载 MathJax。
+    app.set_html_assets_policy("always")

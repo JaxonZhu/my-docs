@@ -1,6 +1,6 @@
-# Hi-ORS 人在环 + 拒绝采样 + 奖励加权过程监督
+# Hi-ORS 论文解读：人在环纠正与在线拒绝采样
 
-Human-in-the-loop Online Rejection Sampling for Robotic Manipulation
+论文原题：Human-in-the-loop Online Rejection Sampling for Robotic Manipulation
 
 **Abstract**
 
@@ -70,7 +70,7 @@ Hi-ORS 系统在数据采集过程中能无缝集成灵活的人工干预，包�
 
 **C. Rejection Sampling**
 
-拒绝采样 $\longrightarrow$ 一种通过过滤候选方案来从目标分布中抽取样本的经典方法 $\longrightarrow$ LLMs 中是指从**多个候选方案**中选取**前 $k$ 个** / **通过验证**的样本 $\longrightarrow$ STaR: 在迭代过程中，基于原始预训练模型自动生成的响应，这些响应需满足验证器的要求 $\longrightarrow$ 本文通过在线 VLA 部署中实施奖励级拒绝机制
+拒绝采样 $\longrightarrow$ 一种通过过滤候选方案来从目标分布中抽取样本的经典方法 $\longrightarrow$ LLMs 中是指从**多个候选方案**中选取**前 $k$ 个** / **通过验证**的样本 $\longrightarrow$ STaR: 在迭代过程中，基于原始预训练模型自动生成的响应，这些响应需满足验证器的要求 $\longrightarrow$ Hi-ORS 在在线 VLA 部署中实施奖励级拒绝机制
 
 **III. Hi-ORS**
 
@@ -87,9 +87,7 @@ $S$ 状态空间 $A=R^d$ 表示 $d$ 维度的动作空间 $p$ 状态转移概率
 经典的策略梯度表达式：
 
 $$
-\begin{align}
 \nabla_\theta \! L^{\text{PG}}(\theta) \!=\! - \!\mathbb{E}_{\tau \sim p^{\pi_\theta}(\cdot)} [Q_\phi(s,a) \nabla_\theta \log \pi_\theta(a_t|s_t)],
-\end{align}
 $$
 
 其中 $Q_\phi(s,a)$ 作为 “动作-价值” 函数的近似值。
@@ -117,9 +115,7 @@ $$
 给定一个轨迹的累计奖励 $R(\tau) = \sum_{t=0}^{T} r_t$ 使用一个指标函数来定义接受度标准：
 
 $$
-\begin{equation}
 \mathcal{I}_m(\tau) = \mathbb{1}_{R(\tau) \geq m}
-\end{equation}
 $$
 
 其中 $m$ 是奖励阈值，这个阈值会<font color=red>随着训练迭代过程而提高</font>。该过滤机制作为拒绝采样策略，将奖励阈值 $m$ 以下的轨迹排除，仅保留高绩效轨迹用于策略更新。
@@ -129,20 +125,16 @@ $$
 采用基于奖励加权的监督学习目标来更新策略，该方法通过模拟成功行为来实现
 
 $$
-\begin{align}
 \nabla_\theta L^{\text{Hi-ORS}}(\theta) \!=\! - \!\mathbb{E}_{\tau \sim p^{\pi_\theta}(\cdot)} [I_m(\tau)  \nabla_\theta \log \pi_\theta(a_t|s_t)],
-\end{align}
 $$
 
 ====> 对于基于 flow-matching 的 VLA :
 
 $$
-\begin{align}
 L^{\text{Hi-ORS}}(\theta)
 \!=\!\!\!\! \mathop{E}\limits_{\substack{\tau \sim p^{\pi_\theta}(\cdot)\\ x^0 \sim N(0, I)\\ u \sim \mathrm{Unif}([0,1])}}
-\!\!\!\!\Big[\underbrace{\color{mypink}I_m(\tau)}_{\color{black}\texttt{For I1}} \!
-\underbrace{\color{myblue}\| v_\theta(u, s_t, x^u) \!-\! (x^1\! -\! x^0) \|_2^2}_{\color{black}\texttt{For I2}} \color{black} \Big],
-\end{align}
+\!\!\!\!\Big[\underbrace{\color[RGB]{216,27,96}I_m(\tau)}_{\color{black}\texttt{For I1}} \!
+\underbrace{\color[RGB]{30,136,229}\| v_\theta(u, s_t, x^u) \!-\! (x^1\! -\! x^0) \|_2^2}_{\color{black}\texttt{For I2}} \color{black} \Big],
 $$
 
 第一项是用于稳定值估计的指示函数，第二项是流匹配损失，它通过在去噪时间序列 $u$ 上提供密集监督，有效解决了系统不稳定的两个关键问题。
@@ -150,6 +142,10 @@ $$
 为实现持续优化，可采用**递增阈值**方案：在 $N$ 次训练迭代中逐步设置阈值 $m_1≤m_2≤\cdots≤m_N$ 。这种递增阈值的筛选机制，能**生成质量递增**但**规模递减**的数据子集。通过在更高质量数据子集上连续微调策略 $\{π_{\theta_{k}}\}_{k≥1}$，可确保策略性能的单调提升。
 
 实际应用中，评估与改进阶段采用异步运行机制，通过独立的策略副本分别执行探索与训练，从而实现高效的离策略学习。该设计既能有效应对 VLA 推理带来的计算开销，又确保了学习过程的稳定性。此外，系统支持根据可用计算资源动态调整更新数据 update-to-data (UTD) 比例。
+
+> **关于奖励与阈值的理解**：如果奖励只在成功结束时给 1，且人工干预使收集到的轨迹全部成功，那么这些轨迹的总奖励相同，阈值筛选就难以继续区分质量。密集奖励下，即使都成功，总回报仍可能不同，筛选才有更多区分空间。
+>
+> 这让我想到之前读的 Action-chunk-PPO：两者都需要定义什么是“好轨迹”，但使用的指标不同。阈值较低时可用数据更多，较高时筛选更严格。我想进一步验证这种取舍怎样影响学习速度和最终表现，不能简单地把高阈值等同于更优策略。
 
 **C. Varied Frequency for Human Corrections**
 
@@ -162,15 +158,15 @@ $$
 Hi-ORS 采用基于控制权限的自适应交互频率：
 
 $$
-\begin{align}
 f_{t} = \begin{cases}
 f^{\text{high}}, & t \in \text{human intervention period;} \\
 f^{\text{low}}, & t \in \text{autonomous control period,}
 \end{cases}
-\end{align}
 $$
 
 在人工干预时，会以更高的频率记录状态转换，以便捕捉更精细的纠正行为；而在自主执行时，则采用较低的频率，以确保策略执行的一致性，避免出现动作突兀或回退行为。
+
+> **与其他工作的联系**：训练时混入旧数据，让我想到 Action-chunk-PPO 和 [iRe-VLA](iRe-VLA-paper.md) 中保留、回用已有数据的做法。我关心的是它能否减少模型过度偏向最新采样数据的问题。
 
 **D. Asynchronous Infrastructure**
 

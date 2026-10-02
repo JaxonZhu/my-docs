@@ -1,4 +1,6 @@
-# RoboChemist: Long-Horizon and Safety-Compliant Robotic Chemical Experimentation
+# RoboChemist 论文解读：长程化学操作的双循环框架
+
+论文原题：RoboChemist: Long-Horizon and Safety-Compliant Robotic Chemical Experimentation
 
 ![RoboChemist-1](images/RoboChemist/RoboChemist-1.png)
 
@@ -12,7 +14,7 @@
 
 - VLM based systems (VoxPoser / ReKep):
 
-  依赖深度信息 $\longrightarrow$ 对透明物体表现较弱（参考 Lingbot-Depth）；依赖物体分割算法 $\longrightarrow$ 对可形变物体表现较弱。
+  依赖深度信息 $\longrightarrow$ 对透明物体表现较弱（参考 [Lingbot-Depth](LingBot-Depth-paper.md)）；依赖物体分割算法 $\longrightarrow$ 对可形变物体表现较弱。
 
 - VLAs ($\pi_0$ / RDT):
 
@@ -101,9 +103,11 @@ VLA 推理闭环会在尝试失败 / 累积误差显著后自动终止 $\Longrig
 **Baselines.** ACT / RDT / $\pi_0$ 
 
 **Metric.** <font color=red>成功率</font> SR 成功试验次数占据整个 20 次试验的比例；<font color=red>合规性</font> **Compliance Rate**：评估每次试验的更精确性评分：假设存在 $n_1$ 次试验得分为 0，$n_2$ 次试验得分为 0.5，$n_3$ 次试验得分为 1:
+
 $$
 CR=\frac{(0\times n_1)+(0.5\times n_2)+(1\times n_3)}{n_1+n_2+n_3}=\frac{(0\times n_1)+(0.5\times n_2)+(1\times n_3)}{20}
 $$
+
 **Model Training and Inference.** 微调 $\pi_0$ 30K 步，4 卡 L20；Qwen2.5-VL-72B-Instruct 做视觉提示；使用 GPT-4o 增加指令多样性；微调完毕后模型在单卡 4090 上以 20Hz 推理。
 
 **4.2 Chemical Tasks**

@@ -1,6 +1,6 @@
-# NORA 论文阅读 代码分析
+# NORA 论文与源码解读：自回归动作生成
 
-NORA: A Small Open-sourced Generalist Vision Language Action Model For Embodied Tasks
+论文原题：NORA: A Small Open-sourced Generalist Vision Language Action Model For Embodied Tasks
 
 **ABSTRACT**
 
@@ -18,7 +18,7 @@ challenge: (1) **视觉编码**容易导致抓取任务失败 (2) VLA 的**大�
 
 **NORA** = *Qwen-2.5-VL-3b* 骨干模型 + *FAST+* 分词器 $\longrightarrow$ 在不需要 aciton grid 和空间 embedding 的情况下优于 SpatialVLA $\longrightarrow$ 证明这样的组合具有良好的空间理解能力
 
-通过系统性实验分析了不同动作预测策略的影响，其中包含 single-step 预测与 chunk-size 预测的详细对比，从而验证了本方案在提升动作生成效率方面的有效性。
+作者通过系统性实验分析不同动作预测策略的影响，其中包含 single-step 预测与 chunk-size 预测的详细对比，用于验证 NORA 在动作生成效率方面的表现。
 
 实验：LIBERO + 真机，比大参数 VLAs 性能更加
 
@@ -253,9 +253,9 @@ NORA-Long 版比原始 NORA 更强一点
 
 **Action chunking performs worse on WidowX.**
 
-验证 action chunk 技术在机器人系统中的有效性，从三个任务类别中各选取一个任务来评估 NORA-LONG 。
+为评估 action chunk 技术，作者从三个任务类别中各选取一个任务来测试 NORA-LONG。
 
-实验中<u>先按顺序执行全部 5 个预测动作，未进行重新规划</u>。但观察发现，WidowX 机器人常因**动作累积**导致过度大幅度移动而**频繁撞墙**。类似地，SpatialVLA 在同时执行全部预测动作时，也表现出类似的**撞墙行为**。
+实验中<u>先按顺序执行全部 5 个预测动作，未进行重新规划</u>。作者观察到，WidowX 机器人常因**动作累积**导致过度大幅度移动而**频繁撞墙**。类似地，SpatialVLA 在同时执行全部预测动作时，也表现出类似的**撞墙行为**。
 
 接下来，通过仅执行<u>每个预测动作块中的第一个动作</u>来评估 NORA-LONG 。这种方法解决了机器人撞到环境的问题，在 “把胡萝卜放进锅里” 任务中取得了 $80\%$ 的成功率。然而，在多目标抓取任务中，NORA-LONG 总是在成功放置第一个物体后停止移动，导致多目标抓取任务的最终成功率降至 $0\%$ 。
 

@@ -1,4 +1,6 @@
-# Evo-1 论文阅读 思考
+# Evo-1 论文解读：轻量级 VLA 与两阶段训练
+
+论文原题：Evo-1: Lightweight Vision-Language-Action Model with Preserved Semantic Alignment
 
 **Abstract**
 
@@ -10,6 +12,8 @@
 - **两阶段**训练过程，将感知和动作**渐进对齐**，保留 VLM 的感知能力
 
 0.77B 模型：仿真 MetaWorld / RoboTwin 评估，现实世界 $78\%$ 成功率
+
+> **我的理解**：“无需机器人数据预训练”是指没有先用大规模机器人数据预训练动作专家，再适配下游任务的过程；模型仍需要具体任务的演示数据来完成两阶段训练。
 
 **1. Introduction**
 
@@ -55,6 +59,8 @@ $$
 **3.2. Model Design**
 
 **3.2.1. Vision-Language Backbone**
+
+> **名称辨析**：这里的 InternVL3 是整个视觉语言模型，InternViT-300M 是其中的视觉编码器，语言分支则是 Qwen2.5-0.5B。因此，论文正文和架构图里的这两个名称并不冲突。
 
 视觉编码器采用 InternViT-300M 模型，该模型是通过 **层级负余弦相似度损失** 从 InternViT-6B 中提炼出的轻量级 Transformer 。每个 RGB 观测数据集 $\{ I_t^i \}_{i=1}^{N}$ 会被调整为 $448\times448$ 尺寸，并通过**像素重排下采样**操作，将视觉 token 数量减少 4 倍。
 

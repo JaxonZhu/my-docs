@@ -1,14 +1,18 @@
-# Align Your Intents: Offline Imitation Learning Via Optimal Transport
+# AILOT 论文解读：基于意图表征的奖励重标注
+
+论文原题：Align Your Intents: Offline Imitation Learning Via Optimal Transport
 
 ![](images/AILOT/AILOT-1.png)
+
+> **阅读侧重**：这篇笔记主要整理方法，没有展开 D4RL 的分数分析。2025 年初读 successor features，2026 年初又在这里遇到了它，读论文还真有点兜了一圈的感觉。论文使用 JAX 生态实现，后续动手时还需要熟悉这套工具。
 
 **ABSTRACT**
 
 Offline RL 仍存在一定的不实用性，因为<font color=red>在缺乏能明确知晓**奖励**的场景下</font>难以<font color=blue>在事后提炼**数据集内在本质**</font>。
 
-本文证明，即使缺乏明确的奖励或动作标签，模仿型智能体仍能<font color=green>仅通过观察 expert 行为来习得所需行为</font>。
+作者在论文中表明，即使缺乏明确的奖励或动作标签，模仿型智能体仍能<font color=green>仅通过观察 expert 行为来习得所需行为</font>。
 
-====> 提出 AILOT: Aligned Imitation Learning via Optimal Transport $\Longrightarrow$ <font color=green>采用一种**特殊的状态表征**形式，即<u>意图表征</u>，该表征整合了数据中的空间距离信息 $\Longrightarrow$ 基于此类表征，通过 expert 轨迹与 agent 轨迹之间的最优传输 optimal transport 距离来定义内在 intrinsic 奖励函数。</font>
+====> 作者提出 AILOT: Aligned Imitation Learning via Optimal Transport $\Longrightarrow$ <font color=green>采用一种**特殊的状态表征**形式，即<u>意图表征</u>，该表征整合了数据中的空间距离信息 $\Longrightarrow$ 基于此类表征，通过 expert 轨迹与 agent 轨迹之间的最优传输 optimal transport 距离来定义内在 intrinsic 奖励函数。</font>
 
 ====> 实验：D4RL $\Longrightarrow$ 效果 SOTA + 在稀疏奖励任务上能有效 relabel 轨迹，并结合其他 Offline RL 算法完成任务
 
@@ -26,7 +30,7 @@ $\Longrightarrow$ IRL + action pseudo-labeling: 引入的额外开销，在实�
 
 $\Longrightarrow$ **DI**stribution **C**orrection **E**stimation (DICE) —— 尝试匹配模仿者与 expert policy 之间的**状态占用度** occupancy 指标：要求 agent 与 expert 的支持集之间存在<u>非零重叠</u> + 使用 KL 散度忽略了<u>底层的空间几何结构</u>
 
-$\Longrightarrow$ *Computational Optimal Transport*: 最优传输理论旨在通过建立<font color=red>少量高质量 expert 示范</font>与<font color=red>学习 agent 轨迹</font>之间的最优耦合，减少人工奖励工程的必要性 ====> <font color=orange>前期工作例如 OTR 只在低维度实现，高维度没有被实现</font>
+$\Longrightarrow$ *Computational Optimal Transport*: 最优传输理论旨在通过建立<font color=red>少量高质量 expert 示范</font>与<font color=red>学习 agent 轨迹</font>之间的最优耦合，减少人工奖励工程的必要性 ====> <font color=orange>前期工作例如 [OTR](OTR-paper.md) 只在低维度实现，高维度没有被实现</font>
 
 ---
 
@@ -44,11 +48,11 @@ $\Longrightarrow$ *Computational Optimal Transport*: 最优传输理论旨在通
 
 【**创新点和优势**】
 
-与前人 OTR 工作比较：通过寻找一个具有代表性的距离保持等距映射到共享的潜在空间，并在该度量感知空间中通过最优传输强制对齐来扩展 OTR 工作 $\Longrightarrow$ 在 OTR 中进行最优运输匹配时，对成本函数（如余弦值或欧氏距离<font color=blue>，且在 OTR 在实验部分用的是余弦值</font>）极为敏感，最终结果可能产生显著差异 $\Longrightarrow$ 选择合适的距离函数需要对环境有深入理解并进行广泛搜索，<font color=red>这限制了 OTR 仅适用于简单 state-based 任务</font>。
+与前人 [OTR](OTR-paper.md) 工作比较：通过寻找一个具有代表性的距离保持等距映射到共享的潜在空间，并在该度量感知空间中通过最优传输强制对齐来扩展 OTR 工作 $\Longrightarrow$ 在 OTR 中进行最优运输匹配时，对成本函数（如余弦值或欧氏距离<font color=blue>，且在 OTR 在实验部分用的是余弦值</font>）极为敏感，最终结果可能产生显著差异 $\Longrightarrow$ 选择合适的距离函数需要对环境有深入理解并进行广泛搜索，<font color=red>这限制了 OTR 仅适用于简单 state-based 任务</font>。
 
-与前人 CLUE 工作比较：提出了一种并行推导内在奖励的创新方案。该研究采用 CVAE 模型，通过训练 expert 与 agent 的转换数据，计算 expert embedding 向量与 agent trajectory 之间的欧氏距离。 $\Longrightarrow$ <font color=red>**在多模态 expert 数据集中，专家嵌入向量可能无法压缩为单一维度，需通过聚类处理不同技能特征。**</font> $\Longrightarrow$ 本方案无需依赖状态-动作配对标注数据，从而省去了动作标注环节。
+与 CLUE 工作比较：CLUE 提出了一种并行推导内在奖励的方案，采用 CVAE 模型，通过训练 expert 与 agent 的转换数据，计算 expert embedding 向量与 agent trajectory 之间的欧氏距离。 $\Longrightarrow$ <font color=red>**在多模态 expert 数据集中，专家嵌入向量可能无法压缩为单一维度，需通过聚类处理不同技能特征。**</font> $\Longrightarrow$ AILOT 无需依赖状态-动作配对标注数据，从而省去了动作标注环节。
 
-本方法的优势在于其能够在空间维度实现分布对齐，这种能力能够捕捉数据集中的**时序结构依赖关系**，<font color=orange>而这是先前研究完全忽略的</font> $\Longrightarrow$ 许多方法聚焦于 KL 散度（对距离度量不敏感），这种时序结构会促使时间相近的状态在空间上产生邻近性。
+作者认为，AILOT 的优势在于能够在空间维度实现分布对齐，这种能力能够捕捉数据集中的**时序结构依赖关系**，<font color=orange>而这是先前研究完全忽略的</font> $\Longrightarrow$ 许多方法聚焦于 KL 散度（对距离度量不敏感），这种时序结构会促使时间相近的状态在空间上产生邻近性。
 
 该方法能与 Offline RL 算法无缝集成，为选择最合适的训练方案提供了灵活性。
 
@@ -64,7 +68,7 @@ $\Longrightarrow$ *Computational Optimal Transport*: 最优传输理论旨在通
 
 **3.2 REWARD RELABELLING THROUGH OPTIMAL TRANSPORT: 基于最优传输的奖励重标注**
 
-定义完问题后，与 OTR 同样地使用 Wasserstein 距离衡量 agent-expert 轨迹的差异：
+定义完问题后，与 [OTR](OTR-paper.md) 同样地使用 Wasserstein 距离衡量 agent-expert 轨迹的差异：
 
 $$
 W(\tau^a,\tau^e)=\min_{P\in\mathbb{R}^{T\times T}}\sum_{i=1}^T\sum_{j=1}^Tc(s_i^a,s_j^e)P_{ij}
@@ -82,15 +86,17 @@ $$
 \end{aligned}
 $$
 
-$\Longrightarrow$ 这里其实跟 OTR 文章中表达的一致：就是所有 $x$ 点的位置的内容，都必须搬到 $y$ 点上，<font color=red>不能凭空产生新的 $y$ 位置</font> $\Longrightarrow$ 分别沿着不同维度进行积分可以得到各自的单独分布。
+$\Longrightarrow$ 这里其实跟 [OTR](OTR-paper.md) 文章中表达的一致：就是所有 $x$ 点的位置的内容，都必须搬到 $y$ 点上，<font color=red>不能凭空产生新的 $y$ 位置</font> $\Longrightarrow$ 分别沿着不同维度进行积分可以得到各自的单独分布。
 
-与 OTR 一样，当 $P_{ij} = P^{\ast}_{ij}$ 的时候，那么已经具有在 cost 函数上最优传输的能力了，使用 $P^{\ast}_{ij}$ 计算奖励函数：
+与 [OTR](OTR-paper.md) 一样，当 $P_{ij} = P^{\ast}_{ij}$ 的时候，那么已经具有在 cost 函数上最优传输的能力了，使用 $P^{\ast}_{ij}$ 计算奖励函数：
 
 $$
 r_i=-\sum_{j=1}^Tc(s_i^a,s_j^e)P_{ij}^*(\tau_a,\tau_e)
 $$
 
-> <font color=blue>目前来看和 OTR 没有很大的区别，因此行文此处作者强调了：本研究创新性地采用**等距映射方式**提取 expert 意图，而非通过数据集计算<u>初始状态</u>间的最优传输路径。该方法能<u>基于状态间的时间距离</u>更精准地模拟相似状态的分布特征。</font>
+> **我的阅读感受**：读到这里时，我觉得它和 [OTR](OTR-paper.md) 的区别还不明显。
+>
+> **论文中的解释**：作者强调，AILOT 采用**等距映射方式**提取 expert 意图，而非直接计算原始状态间的最优传输。作者认为，这种表征能<u>基于状态间的时间距离</u>更精准地模拟相似状态的分布特征。
 >
 > 注：论文中提到的 “初始状态” 指的都是原始数据集的状态。
 
@@ -210,7 +216,7 @@ Cost 函数中的第二项对于轨迹的有序比较是必要的。在模仿学
 
 **5.3 BASELINES**
 
-**IQL** / **OTR** / **CLUE** / **IQ-Learn** / **Diffusion-QL** / **SQIL** / **ORIL** / **SMODICE**
+**IQL** / **[OTR](OTR-paper.md)** / **CLUE** / **IQ-Learn** / **Diffusion-QL** / **SQIL** / **ORIL** / **SMODICE**
 
 **5.4 RESULTS & EXPERIMENTS**
 
@@ -228,8 +234,8 @@ Cost 函数中的第二项对于轨迹的有序比较是必要的。在模仿学
 
 ![](images/AILOT/AILOT-7.png)
 
-- OTR / AILOT 两种算法的性能随着 expert 演示轨迹的增加只有轻微 slightly 提升。
-- AILOT 的标准化得分仍优于 OTR ，这证明在几何感知空间中对意图进行对齐，相较于 OTR 采用的原始状态间成对距离的类似奖励机制，能更有效地提升内在奖励标注的准确性。
+- [OTR](OTR-paper.md) / AILOT 两种算法的性能随着 expert 演示轨迹的增加只有轻微 slightly 提升。
+- AILOT 的标准化得分仍优于 [OTR](OTR-paper.md) ，这证明在几何感知空间中对意图进行对齐，相较于 OTR 采用的原始状态间成对距离的类似奖励机制，能更有效地提升内在奖励标注的准确性。
 
 **Intents distance dependence on the steps count.** 通过学习具有时间保持特性的价值函数（即相似时序状态被映射到意图空间中的时间闭合点），底层空间变得更加结构化。由于最优传输考虑了空间的几何特性，寻找对齐的任务变得更为简单。
 
@@ -242,9 +248,13 @@ Cost 函数中的第二项对于轨迹的有序比较是必要的。在模仿学
 
 - AILOT 包括对<u>大量未标记轨迹的充分访问假设</u>，这些轨迹需具备<u>可接受的质量</u>。作者聚焦于 expert 行为，这类行为通常见于离线强化学习文献：采用流行合成环境，其中包含若干可理解的 expert 动作，因而形成若干足够直观的意图，这些意图可从提供的数据集中提取。
 - <font color=orange>由于意图的多模态性，专家可能具有<u>多个目标或执行模糊动作</u>，这会导致模仿效率下降，因为专家的意图可能不再对智能体透明。</font>
-- 开展跨领域模仿研究。根据本研究观察到的结果， AILOT 应能推广到处理 expert 与 agent 之间的转换问题，即使存在与不同领域相关的较大不匹配。
+- 开展跨领域模仿研究。作者根据论文中的结果推测，AILOT 有望推广到处理 expert 与 agent 之间的转换问题，即使存在与不同领域相关的较大不匹配。
 
 ---
+
+**我的问题与理解**
+
+下面整理我在阅读过程中提出的问题，以及结合公式做的理解。
 
 【<font color=red>问题（1）如何理解对距离不敏感的 KL 散度会促使时间相近的状态在空间上产生邻近性？</font>】
 

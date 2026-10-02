@@ -1,4 +1,6 @@
-# MemoryVLA: Perceptual-Cognitive Memory In Vision-Language-Action Model For Robotic Manipulation
+# MemoryVLA 论文解读：记忆增强的动作生成
+
+论文原题：MemoryVLA: Perceptual-Cognitive Memory In Vision-Language-Action Model For Robotic Manipulation
 
 ![MemoryVLA](images/MemoryVLA/MemoryVLA-1.png)
 
@@ -80,18 +82,22 @@ cognitive tokens: 原始视觉 tokens 通过线性层投影至语言嵌入空间
 ---
 
 perceptual tokens $p$ 和 cognitive tokens $c$ 一起形成了 working memory.
+
 $$
 M_{\mathrm{wk}}=\{p\in\mathbb{R}^{N_p\times d_p},c\in\mathbb{R}^{1\times d_c=N_c\times d_c}\} \quad\text{单个 timestep}
 $$
+
 但是 working memory 只反映了<font color=red>当前时间步长的短期记忆，视觉语言信息的聚合，且缺乏时间依赖性</font>
 
 **3.3 PERCEPTUAL-COGNITIVE MEMORY MODULE**
 
 解决长期记忆问题，提出 Perceptual–Cognitive Memory Bank (PCMB):
+
 $$
 M_{\mathrm{pcmb}}=\{m^{x}\mid x\in\{\mathrm{per},\mathrm{cog}\}\} \\ 
 m^{x}=\{m_{i}^{x}\in\mathbb{R}^{N_{x}\times d_{x}}\}_{i=1}^{L},\quad x\in\{\mathrm{per},\mathrm{cog}\}
 $$
+
 $m_i^{p}$ $\Longrightarrow$ 精细的视觉细节；$m_{i}^{c}$ $\Longrightarrow$ 高层次的语义摘要。该数据库每个流最多可维护 $L$ 个条目。
 
 **Memory Retrieval ====> 根据当前 working memory 从 PCMB 中检索出最相关的 memory**
@@ -99,22 +105,29 @@ $m_i^{p}$ $\Longrightarrow$ 精细的视觉细节；$m_{i}^{c}$ $\Longrightarrow
 ![MemoryVLA-3](images/MemoryVLA/MemoryVLA-3.png)
 
 每个 timestep 的包括 perceptual tokens 和 cognitive tokens 的短期记忆 $m_i^x$ 被使用时间步对应的正弦位置编码相加，作为 Key
+
 $$
 K^x=[m_1^x+\underbrace{\mathrm{TE}(t_1)}_{\text{PCMB中当前位置对应的timestep}};\ldots;m_L^x+\mathrm{TE}(t_L)]\in R^{LN_x\times d_x},x\in\{\mathrm{per},\mathrm{cog}\}
 $$
+
 同时保留原始不加时间步位置编码的序列作为 Value:
+
 $$
 V^x=[m_1^x;\ldots;m_L^x]
 $$
+
 进行注意力计算：
+
 $$
 \hat{H}^x=\mathrm{softmax}\left(\frac{q^x(K^x)^\top}{\sqrt{d_x}}\right)V^x,\quad q^x\in\{p,c\},\quad x\in\{\mathrm{per,~cog}\}
 $$
+
 该注意力操作后接一个 FFNN 以完成一个 Transformer 层，应用 2 个此类层可得到最终检索的嵌入向量 $H_p$ 和 $H_c$ 。
 
 **Memory Gate Fusion ====> 当前 working memory 和最相关的 memory 进行门控融合**
 
 ![MemoryVLA-4](images/MemoryVLA/MemoryVLA-4.png)
+
 $$
 g^x=\sigma\left(\mathrm{MLP}(\mathrm{concat}[x,H^x])\right)\quad x\in\{\mathrm{per,~cog}\}
 $$
@@ -122,9 +135,11 @@ $$
 > $g^{x}$ 本质上可以理解成一个评分，因为通过 $\sigma$ sigmoid 激活函数，计算得到的取值范围是 $[0, 1]$
 
 然后进行线性加权 memory-augmented representation ：
+
 $$
 \tilde{x}=g^x\odot H^x+(1-g^x)\odot x
 $$
+
 生成的记忆增强 memory-augmented 特征 $\hat{p}$ 和 $\hat{c}$ 被传递至记忆巩固阶段
 
 **Memory Consolidation**
@@ -132,13 +147,17 @@ $$
 ![MemoryVLA-5](images/MemoryVLA/MemoryVLA-5.png)
 
 当存储条目数量超过 $L$ 时，系统会<font color=red>在每个 perceptual stream 和 cognitive stream 中</font>计算**相邻条目之间的余弦相似度**。
+
 $$
 i_x^*=\arg\max_{i=1,...,L-1}\cos(\tilde{x}_i,\tilde{x}_{i+1})
 $$
+
 随后选取各流中相似度最高的条目对，通过向量平均法进行合并，从而降低冗余度。
+
 $$
 m_{i_x^*}^x\leftarrow\frac{1}{2}\left(\tilde{x}_{i_x^*}+\tilde{x}_{i_x^*+1}\right),\quad x\in\{\mathrm{per},\mathrm{cog}\}
 $$
+
 **3.4 MEMORY-CONDITIONED ACTION EXPERT ====> 将记忆融入动作生成当中**
 
 采用 Diffusion Transformer，并结合 DDIM ，通过 10 步去噪实现高效精准的轨迹生成。该架构通过逐步去噪含有噪声的动作 tokens 序列，最终生成精确的连续动作。
@@ -150,6 +169,8 @@ $$
 3. 通过 FFNN 对组合表示进行优化，以获得该步骤的去噪动作。
 
 模型采用预测动作与目标动作之间的 MSE 进行训练，最终的去噪向量通过 MLP 生成连续的 7 自由度机器人动作。
+
+> **从信息融合方式看**：我把 cognitive token 对信息的聚合，以及认知表征与动作 tokens 的拼接，归入 condition fusion；Perception-Attention 则让动作直接访问感知 tokens，属于 cross-attention fusion。这样对照，更容易看清聚合信息与细节信息分别从哪里进入动作专家。
 
 **4 EXPERIMENTS**
 

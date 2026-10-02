@@ -1,4 +1,6 @@
-# InternVLA-A1: Unifying Understanding, Generation and Action for Robotic Manipulation
+# InternVLA-A1 论文解读：理解、预测与动作生成
+
+论文原题：InternVLA-A1: Unifying Understanding, Generation and Action for Robotic Manipulation
 
 ![](images/InternVLA-A1/InternVLA-A1-1.png)
 
@@ -107,7 +109,7 @@ InternVLA-A1 采用 MoT + decoder-only transformer 架构，将场景理解、�
 
 3. ***action expert***: 结合语义上下文和环境动力学 $\Longrightarrow$ Flow-Matching $\Longrightarrow$ 精确的机器人控制指令
 
-   【预训练损失】$\mathcal{L}_{\mathrm{action}}=\mathbb{E}_{\{a_{t:t+k},o_{i},q_{t},l\}\sim\mathcal{D}}\left[\left\|v_{\theta}(l,\{o_{i}\}_{i=t-m}^{t},q_{t},a_{t:t+k}^{\tau})-(a_{t:t+k}-\epsilon)\right\|^{2}\right]$ 跟 $\pi_{0.5}$ 类似，时间步 timesteps 从 Beta 分布中抽样，但是噪声从正态分布中抽样。 
+   【预训练损失】$\mathcal{L}_{\mathrm{action}}=\mathbb{E}_{\{a_{t:t+k},o_{i},q_{t},l\}\sim\mathcal{D}}\left[\left\|v_{\theta}(l,\{o_{i}\}_{i=t-m}^{t},q_{t},a_{t:t+k}^{\tau})-(a_{t:t+k}-\epsilon)\right\|^{2}\right]$ 跟 [$\pi_{0.5}$](Pi-05.md) 类似，时间步 timesteps 从 Beta 分布中抽样，但是噪声从正态分布中抽样。
 
 4. ***Attention Mechanism***: 使用 cumulative segment mask 累积段掩码强制执行严格的信息流：<font color=green>后续块中的 tokens 可 attend 所有前序块，而前序块无法向前关注</font>。*understanding expert* 包含的 “视觉 + 语言” tokens 为全双向结构。*generation expert* 同样为全双向结构，仅接收来自 $t − 1$ 帧和 $t$ 的 Cosmos 潜在 tokens 。*action expert* 被拆分为状态 token 和动作 tokens ：<font color=orange>状态标记仅关注自身及前序块，动作标记则关注状态及彼此</font>。
 
@@ -149,7 +151,7 @@ LPT 生成一个分配策略 $\pi:\{1,\ldots,n\}\to\{1,\ldots,K\}$ 含义就是�
 
 **4.2. Simulated synthetic data**
 
-【结论】InternData-A1首次证明，当预训练 VLA 模型时，<font color=red>纯合成数据能够达到与大规模真实世界数据集相当的性能</font>，其结果与最强大的闭源真实世界 $\pi$ 数据集相当 $\Longrightarrow$ “选择 InternData-A1 作为预训练语料库的基础，因其样本多样性卓越且在预训练VLA模型中已证实有效。”
+【论文对前序工作的评价】作者称，InternData-A1 首次证明，当预训练 VLA 模型时，<font color=red>纯合成数据能够达到与大规模真实世界数据集相当的性能</font>，其结果与闭源真实世界 $\pi$ 数据集相当 $\Longrightarrow$ 作者据此选择 InternData-A1 作为预训练语料库的基础，理由是其样本多样性以及已有的 VLA 预训练结果。
 
 **4.3. Open-source robot demonstration**
 
@@ -229,3 +231,5 @@ In-motion Ingredient Picking: 在动态配料拣选任务中，两台机器人�
 
 - 当前 understanding experts 缺乏与多模态 VQA 数据集的联合训练，导致通用语义推理和复杂指令遵循能力下降
 - 为确保前瞻性视觉预测模块的高效推理，降低了图像预测的保真度，这限制了生成未来帧的粒度
+
+> **我想进一步看的结果**：把一个具体任务执行过程中的前瞻性视觉预测可视化，逐步对照真实观测，应该能更直观地理解生成模块的作用，以及降低预测保真度带来的影响。

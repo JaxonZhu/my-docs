@@ -1,17 +1,12 @@
-Robo-Chemist
-============
+RoboChemist 论文导读
+================================================================================
 
-RoboChemist: Long-Horizon and Safety-Compliant Robotic Chemical Experimentation
+RoboChemist 面向长程化学实验，将视觉语言模型的规划与机器人执行结合起来，并在任务过程中检查与纠正。
 
-25 年年底就在小红书上刷到这篇工作的介绍，机缘巧合现在读了读。
-
-称呼它为 VLA 是因为这项工作只包含了 “视觉-语言” 模态输入 + 动作模态输出；称呼它为 “广义 VLA” 是因为这项工作与传统 VLA 所讨论的 action grounding / 预训练+微调+评估 不同，这份工作的能力扩展更多在于对外置 VLM 的应用。
-
-文章思路和语言表述都可以，整体读起来不难，而且很有意思。最后总结的 limitations 也是现在公开问题。
-
+我关注它怎样把一项复杂实验拆成可执行的步骤，以及执行遇到问题时如何调整。正文顺着双循环框架展开，也整理了作者讨论的局限。
 
 .. toctree::
    :maxdepth: 1
-   :caption: Contents of Robo-Chemist:
+   :caption: 文章目录
 
    RoboChemist-paper

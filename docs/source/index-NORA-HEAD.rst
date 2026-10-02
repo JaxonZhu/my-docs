@@ -1,23 +1,13 @@
-NORA / NORA-1.5
-===============
+NORA 系列阅读与源码分析
+================================================================================
 
-目前 NORA 系列 VLA 发布两项工作:
+这里整理了 NORA 和 NORA-1.5 两篇工作，分别关注自回归动作生成，以及世界模型奖励驱动的后训练。
 
-*NORA: Neural Orchestrator for Robotics Autonomy*
-
-这个工作相对简单, 发布了基于 Qwen VLM 和 FAST+ 分词器的小参数量模型，并在常见 benchmark 上与其他基线对比.
-
-*NORA-1.5: A Vision-Language-Action Model Trained using World Model- and Action-based Preference Rewards*
-
-这个工作相对复杂, 主要包含两份工作量: 在原始预训练 NORA-1 的基础上增加了类似 :math:`\pi_{0}` 的 flow-matching based action expert, 先增强了一波基础模型的能力; 第二份工作量是引入了以世界模型为原型 + 真值动作条件引导下的启发式奖励信号，二者协同进一步对 VLA 使用 DPO 算法后训练.
-
-感到意外的是文章语言表达, NORA-1 相对清晰 / 直观 / 简单; 但是到了 NORA-1.5 这个版本文章的可读性增强了不少, 或者说表达上更正式了.
-
-NORA-1.5 是具有可实践性的: 基于视觉世界模型来进一步改造 / 微调出奖励预测模型: 视觉世界模型本身基于海量数据预训练, 在下游可以尝试多数据集微调得到一个特定环境 / 特定具身实体的奖励预测器; 基于奖励预测器, 让 VLA policy 采样多个 action chunk 标注奖励, 可行性也相对高.
+想看基础模型与实现，可以先读 :doc:`NORA 的论文与源码解读 <NORA-1-paper>`；关注奖励建模和偏好训练，可以直接读 :doc:`NORA-1.5 <NORA-15-paper>`。我尤其关心后者的奖励设计能否借鉴到自己的任务中。
 
 .. toctree::
    :maxdepth: 1
-   :caption: Contents of NORA:
+   :caption: 文章目录
 
    NORA-1-paper
    NORA-15-paper

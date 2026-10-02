@@ -1,4 +1,6 @@
-# Robo-Reward: A Dataset And Benchmark For Vision-Language Reward Models In Robotics
+# RoboReward 论文解读：机器人奖励数据集与评测
+
+论文原题：Robo-Reward: A Dataset And Benchmark For Vision-Language Reward Models In Robotics
 
 ![](images/RoboReward/RoboReward-1.png)
 
@@ -146,8 +148,6 @@ RL 的 maximum expected reward 目标 $\Longrightarrow$ 奖励函数需要被明
 
    (5) 最终状态满足所有要求 "The final state satisfies all the requirements" 为 5 分
 
-   ---
-
    生成过程：
 
    Step 1: 使用 Qwen2.5-VL Instruct 7B 概述场景 以及 视频中出现的所有物体 及其 最终状态
@@ -169,6 +169,8 @@ RL 的 maximum expected reward 目标 $\Longrightarrow$ 奖励函数需要被明
 【模型】微调 Qwen2.5-VL-3 / 7B VLMs，输入文本指令和视频，输出 $\{1,\cdots,5\}$ episode reward 任务进度打分。冻结视觉主干网络，并以 $3×10^{−6}$ 的学习率和 $0.05$ 的权重衰减对融合层和 LLM 层进行微调，通过梯度累积训练，有效批量大小为 $64$ 。针对 3B 和 7B models，选取在保留验证集上使预测与真实 $1-5$ 奖励标签间 MAE 最小化的最佳检查点，从而训练出 VLM reward 模型：RoboReward VLM 3B 和 RoboReward VLM 7B 。
 
 【benchmark】对测试集进行更精细化的人工验证，最终产生 **RoboRewardBench** 
+
+> **一个帮助理解的类比**：从输入输出看，我把它理解为“以任务文本为条件，对执行视频进行五档评分”：输入视频和指令，输出 1–5 的离散奖励。这是对任务形式的概括，不代表实现中额外增加了一个分类头。
 
 **5 EXPERIMENTS**
 
@@ -216,7 +218,7 @@ RL 的 maximum expected reward 目标 $\Longrightarrow$ 奖励函数需要被明
 
 奖励函数：episode-reward 
 
-三个对比：<u>自己微调的奖励</u> VLM $\{1-5\}$，<u>Qwen 2.5-VL Instruct 3B</u>  $\{1-5\}$，<u>人类评估</u>：人类标注者在成功时给予 $+1$ 的正向奖励，否则奖励为 $0$ 
+论文对比的三类奖励来源：<u>作者微调的奖励</u> VLM $\{1-5\}$，<u>Qwen 2.5-VL Instruct 3B</u>  $\{1-5\}$，<u>人类评估</u>：人类标注者在成功时给予 $+1$ 的正向奖励，否则奖励为 $0$
 
 环境 & 任务：WidowX robot. "拿起一个填充玩具蘑菇，放在一块布上" / "拉抽屉" 
 
@@ -228,3 +230,4 @@ RL 的 maximum expected reward 目标 $\Longrightarrow$ 奖励函数需要被明
 
 ====> 排名第二是 RoboReward VLM 3B 在 RoboRewardBench 上的平均胜率为 0.758 ，其奖励分配的准确性虽未达到人类水平，但在两项任务上仍优于 base policy 。
 
+> **我的疑问**：学出的五档奖励在这些实验中仍不如人类二元奖励，这让我更关心评分是否准确，而不只是分档是否细致。视角、噪声和机械臂自身遮挡会不会导致视觉奖励预测出错，进而影响策略？这是一个可能的解释，还需要单独验证。

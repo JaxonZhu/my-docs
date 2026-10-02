@@ -1,4 +1,6 @@
-# mimic-video: Video-Action Models for Generalizable Robot Control Beyond VLAs
+# mimic-video 论文解读：视频表征驱动的动作生成
+
+论文原题：mimic-video: Video-Action Models for Generalizable Robot Control Beyond VLAs
 
 ![](images/mimic-video/mimic-video-2.png)
 
@@ -118,6 +120,8 @@ action-policy: $\pi_\theta(\mathbf{A}_t^{\tau_a},\mathbf{q}_t,\mathbf{h}^{\tau_v
 - 视频模型层数：中间层 $k=19$ 能产生最佳策略性能，且随着向**初始层**或**末端层**递进，成功率呈现**显著递减趋势**。
 - 视频观测时间范围 $H_o$ ：采用 5 帧的较长观测时间范围比仅基于当前观测值的条件设定更具优势。
 
+> **与记忆方法的联系**：多帧历史观测让我想到 memory-based VLA 中的短期记忆。过去几帧可能补充当前帧因遮挡而缺失的信息，帮助缓解视觉不确定性。不过，这种短时上下文与长程任务中的记忆检索仍是不同层面的问题。
+
 **V. EXPERIMENTS**
 
 【实验设置】
@@ -134,7 +138,7 @@ action-policy: $\pi_\theta(\mathbf{A}_t^{\tau_a},\mathbf{q}_t,\mathbf{h}^{\tau_v
 
 【baselines】
 
-- $\pi_{0.5}$-style VLA: `PaliGemma-3B` 作为 backbone，并搭配与 mimic-video 相同的动作解码器。
+- [$\pi_{0.5}$](Pi-05.md)-style VLA: `PaliGemma-3B` 作为 backbone，并搭配与 mimic-video 相同的动作解码器。
 
   动作解码器会交叉注意力机制作用于主干网络中经过实证验证的最佳选择层 $\longrightarrow$ 确保差异来源仅在于预训练模态
 
@@ -179,9 +183,9 @@ action-policy: $\pi_\theta(\mathbf{A}_t^{\tau_a},\mathbf{q}_t,\mathbf{h}^{\tau_v
 
 ![](images/mimic-video/mimic-video-13.png)
 
-进行额外的 $τ_v$ 扫描实验，其中将动作解码器的条件设置**为 "含噪" 的真实视频潜在变量** $\mathbf{z}_{\mathrm{future}}^{\tau_v}$。
+作者进行了额外的 $τ_v$ 扫描实验，其中将动作解码器的条件设置**为 "含噪" 的真实视频潜在变量** $\mathbf{z}_{\mathrm{future}}^{\tau_v}$。
 
-观察发现，<font color=red>最低动作重建误差</font>出现在中间流动时间 $τ_v \approx 0.4$ 时，进一步验证了训练数据分布实际上时 clean latent 在 0.5 $τ_v$ 的加噪程度下表现最好；与训练分布最接近。
+论文实验显示，<font color=red>最低动作重建误差</font>出现在中间流动时间 $τ_v \approx 0.4$ 时，进一步验证了训练数据分布实际上时 clean latent 在 0.5 $τ_v$ 的加噪程度下表现最好；与训练分布最接近。
 
 > **作者在附录部分解释了 "与允许视频模型完全去噪其预测结果相比，提前终止视频生成过程并将动作解码器置于 '含噪' 视觉计划条件下，可显著提升性能表现" 的原因。**
 

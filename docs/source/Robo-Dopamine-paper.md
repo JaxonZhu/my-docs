@@ -1,4 +1,6 @@
-# Robo-Dopamine: General Process Reward Modeling for High-Precision Robotic Manipulation
+# Robo-Dopamine 论文解读：过程奖励建模与奖励塑形
+
+论文原题：Robo-Dopamine: General Process Reward Modeling for High-Precision Robotic Manipulation
 
 ![](images/RoboDopamine/RoboDopamine-1.png)
 
@@ -65,6 +67,8 @@ GRM 评估指标：$92.8\%$ 进度精确性 + $0.953$ Value-Order Consistency (V
 **3. Method**
 
 **3.1. Dopamine-Reward Modeling Method**
+
+> **我的实践经历**：我之前直接用归一化时间戳监督任务进度时，也遇到过接近零的标签难以学好的情况；改用 TD 差分和 target network 后，又碰到训练损失持续增大、难以收敛的问题。所以读到这里很有共鸣。作者选择了 Hop-based 归一化，而我后来转向研究 Optimal Transport。这些是我在具体实验中的观察。
 
 **3.1.1. General Reward Model (GRM) Construction**
 
@@ -135,6 +139,8 @@ GRM ==> VLM ==> 基于<u>相对时序状态</u>转移构建的大规模数据集
 
 任务描述 + 起始状态 + 终止状态 + 任务一对状态 $\Longrightarrow$ GRM $\Longrightarrow$ 任务进度
 
+> **关于视频分段的想法**：按帧长划分，可能把“缓慢移动”和“移动、按下按钮、弹回”分成同样长的一段，但两段的动作丰富程度差别很大。能否借助 VLM，按任务内容进行非均匀分段？这是我想尝试的改动，效果还需要实验验证。
+
 **3.1.2. Multi-Perspective Progress Fusion from GRM**
 
 上一节 "Hop-based relative progress normalization" 只是得到了两个状态之间的任务进度，且这两个状态可以是同一条轨迹内的任何两个状态，<font color=red>如何将这个建模的指标转变成相邻两个状态直接的任务进度计算？</font><font color=green>本部分解决这个问题。使用了三种计算方式处理 Hop-based 任务进度预测，并进行融合。</font>
@@ -200,7 +206,7 @@ $$
 
 为解决这些问题，提出一种双向一致性检查策略，该策略将一致性作为可靠的替代指标。
 
-这一策略的动机源于观察到：<font color=blue>在 OOD 场景或观测中，前向 $\Phi_F^\star$ 和后向 $\Phi_B^\star$ 的预测往往表现出显著差异，而在熟悉状态下则保持一致</font>。
+作者在提出这一策略时指出：<font color=blue>在 OOD 场景或观测中，前向 $\Phi_F^\star$ 和后向 $\Phi_B^\star$ 的预测往往表现出显著差异，而在熟悉状态下则保持一致</font>。
 
 基于此，首先计算出前向-反向的预测均值：$\bar{\Phi}^*(s_t)=(\Phi_F^*(s_t)+\Phi_B^*(s_t))/2$ 
 
@@ -249,14 +255,14 @@ $$
 > 
 > 对于第一项，直接分离出最后一个加法项目；对于第二项，直接分离出第一个加法项目，可得：
 > 
-> $$
-> \begin{align}
+> ```{math}
+> \begin{aligned}
 > G_{t} =& \left[\sum_{t=0}^{T-2}\gamma^{t}\Phi^\star(s_{t+1})+\gamma^{T-1}\Phi^\star(s_T)\right]- \left[\Phi^\star(s_0)+\sum_{t=1}^{T-1}\gamma^t\Phi^\star(s_t)\right] \\
 > =& \left[\sum_{t=1}^{T-1}\gamma^{t-1}\Phi^\star(s_t)+\gamma^{T-1}\Phi^\star(s_T)\right]- \left[\Phi^\star(s_0)+\sum_{t=1}^{T-1}\gamma^t\Phi^\star(s_t)\right] \\
 > =& -\Phi^\star(s_0)+\sum_{t=1}^{T-1}(\gamma^{t-1}-\gamma^t)\Phi^\star(s_t)+\gamma^{T-1}\Phi^\star(s_T) \\
 > =& -\Phi^\star(s_0)+(1-\gamma)\sum_{t=1}^{I-1}\gamma^{t-1}\Phi^\star(s_t)+\underbrace{\gamma^{T-1}\Phi^\star(s_T)}_{\text{第三项}}
-> \end{align}
-> $$
+> \end{aligned}
+> ```
 > 
 > 但是 $G_t$ 最后一项存在 $\gamma$ 的指数次方，会随着 $T$ 增大而数值消失，因此：
 > 
@@ -404,7 +410,7 @@ $$
 
 移除策略不变的奖励塑形会导致性能大幅下降 $43.7\%$ ，智能体会陷入 “好到够用” 的状态陷入停滞，未能完成任务，这证实了 “语义陷阱” 。若仅依赖 zero-shot GRM ，该方法在 OOD 任务的边缘案例中偶尔会产生错误奖励，例如将正奖励分配给不良行为，或将负奖励分配给良好行为。这会阻碍策略收敛，导致成功率下降 $21.8\%$ 。
 
-**E. Future Work**
+**E. Future Work：作者提出的后续方向**
 
 1. 基于 VLM 的奖励函数部署在 RL 中会存在推理时延，使用量化方法进行优化
 
@@ -416,3 +422,4 @@ $$
 
 4. 富接触任务的奖励模型 ====> 更多的多模态
 
+> **阅读提醒**：我读的版本里，各小节的变量符号有些差异。前后对照推导时，需要回到对应小节确认定义。

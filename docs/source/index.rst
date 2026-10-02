@@ -3,47 +3,48 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-JaxonZhu-Documents documentation
-================================
+JaxonZhu · 具身智能笔记
+================================================================================
 
 .. image:: images/personal_page/JaxonZhu.png
    :alt: This is me.
    :width: 300px
 
-你好, 我是 JaxonZhu, 一名具身算法工程师.
+你好，我是 JaxonZhu，一名具身算法工程师。
 
-我目前专注于：
+这里记录我的 VLA 论文阅读、源码分析和模型实践，以及 LeRobot 学习笔记。
 
-- 主流 / 最新 VLA 模型跟踪和公开 benchmark 复现
-- VLA 在下游垂域任务上适配
-- 前沿算法用于 VLA 后训练
-- 数据采集 / 模型分布式训练 / 真实环境部署
+我目前关注的方向：
+
+- 跟踪 VLA 模型进展，复现公开 benchmark。
+- 将 VLA 适配到具体的下游任务。
+- 探索强化学习和奖励建模在 VLA 后训练中的应用。
+- 关注数据采集、分布式训练和真实环境部署中的工程问题。
 
 .. note::
 
-   现在而言, 「能跑起来」对我来说始终比「看起来厉害」更重要.
+   我更关心一个方法能否真正跑起来，以及从论文到实际任务之间，还需要补上哪些工作。
 
-Current Focus
--------------
+这里记录了什么
+--------------------------------------------------------------------------------
 
-:math:`\pi`-x VLA: :math:`\pi_{0}` / :math:`\pi_{0.5}` / :math:`\pi_{0.6}`
+- **论文解读**：从模型结构、训练方法和实验设计出发，整理 VLA 相关论文，也写下自己的理解和疑问。
+- **源码分析**：拆解 :doc:`Evo-1 的网络结构 <Evo-1-networks>` 和 :doc:`InternVLA-A1 的联合注意力 <InternVLA-A1-model-PartA>`，对照论文理解实现。
+- **实践记录**：记录 :doc:`Evo-1 在 ALOHA 仿真任务上的微调过程与观察 <Evo-1-aloha-finetune>`。
+- **工具笔记**：整理 :doc:`LeRobot 命令行工具的实现原理 <lerobotindex-Terminal-Implementation-Principle>` 等学习笔记。
 
-OpenVLA-OFT-based VLA: OpenVLA-OFT / VLA-Adapter
+联系我
+--------------------------------------------------------------------------------
 
-Small-scale VLA: NORA / NORA-1.5 / Evo-1 / X-VLA / Smol-VLA
-
-Get in touch
-------------
-
-- Email: jbzhu1999@gmail.com
-- GitHub: https://github.com/JaxonZhu
-- Red-Notes: RetrievalAG
+- 邮箱： jbzhu1999@gmail.com
+- GitHub： https://github.com/JaxonZhu
+- 小红书： RetrievalAG
 
 ================================
 
 .. toctree::
    :maxdepth: 1
-   :caption: VLA works:
+   :caption: VLA 阅读与实践
 
    index-Pi-x-VLA-HEAD
    index-Evo-1-HEAD
@@ -68,9 +69,8 @@ Get in touch
 
 .. toctree::
    :maxdepth: 1
-   :caption: LeRobot:
+   :caption: LeRobot 工具笔记
 
    lerobotindex-Terminal-Implementation-Principle
-
 
 
