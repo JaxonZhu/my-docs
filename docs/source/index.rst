@@ -12,7 +12,7 @@ JaxonZhu · 具身智能笔记
 
 你好，我是 JaxonZhu，一名具身算法工程师。
 
-这里记录我的 VLA 论文阅读、源码分析和模型实践，以及 LeRobot 学习笔记。
+这里记录我的 VLA 论文阅读、源码分析和模型实践，以及智能体强化学习与 LeRobot 学习笔记。
 
 我目前关注的方向：
 
@@ -47,6 +47,10 @@ JaxonZhu · 具身智能笔记
    :caption: VLA 阅读与实践
 
    index-Pi-x-VLA-HEAD
+   index-Xiaomi-Robotics-0-HEAD
+   index-TrAct-HEAD
+   index-SOP-HEAD
+   index-SCIZOR-HEAD
    index-Evo-1-HEAD
    index-NORA-HEAD
    index-HiORS-HEAD
@@ -69,8 +73,12 @@ JaxonZhu · 具身智能笔记
 
 .. toctree::
    :maxdepth: 1
+   :caption: 智能体强化学习
+
+   index-DISTRL-HEAD
+
+.. toctree::
+   :maxdepth: 1
    :caption: LeRobot 工具笔记
 
    lerobotindex-Terminal-Implementation-Principle
-
-
