@@ -44,6 +44,10 @@ JaxonZhu · 具身智能笔记
 - GitHub： https://github.com/JaxonZhu
 - 小红书： RetrievalAG
 
+.. only:: html
+
+   .. include:: _includes/support.inc
+
 ================================
 
 .. toctree::
@@ -55,6 +59,11 @@ JaxonZhu · 具身智能笔记
    index-TrAct-HEAD
    index-SOP-HEAD
    index-SCIZOR-HEAD
+   index-RoboDojo-HEAD
+   index-RL-Token-HEAD
+   index-LWD-HEAD
+   index-LingBot-VA-HEAD
+   index-Jetson-PI-HEAD
    index-Evo-1-HEAD
    index-NORA-HEAD
    index-HiORS-HEAD

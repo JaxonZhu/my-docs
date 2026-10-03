@@ -65,6 +65,8 @@ make -C docs serve
 
 首页的“随机逛一篇”从首页目录可达的末级文章中随机选择，跳过首页和包含下级目录的栏目页。新增文章接入现有目录后，下次构建会自动加入候选列表，不需要手工维护链接。浏览器未启用 JavaScript 时，该位置保留一篇实践记录的普通链接。
 
+首页“联系我”下方的“支持这份笔记”使用原生折叠面板，关闭 JavaScript 也能展开。文案在 `docs/source/_includes/support.inc`，样式在 `docs/source/_static/support.css`。微信赞赏码原图保存在 `docs/source/images/personal_page/wechat-appreciation.jpg`，页面中的图片和“查看赞赏码原图”均链接到构建后的 `_images/wechat-appreciation.jpg`，方便手机读者打开保存。更换赞赏码时保留原图完整边缘，不重绘或裁剪二维码；若修改文件名，同步更新图片引用和两处原图链接。该面板只展示图片，不查询到账状态；更新后需重新构建、检查原图链接，并用微信实际验证扫码。
+
 ## 文件放在哪里
 
 | 路径 | 用途 |

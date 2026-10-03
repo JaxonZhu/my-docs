@@ -42,6 +42,7 @@ language = 'zh_CN'
 html_theme = "sphinx_rtd_theme"
 html_title = project
 html_static_path = ['_static']
+html_css_files = ['support.css']
 
 # 固定浏览器端公式渲染版本，避免 CDN 的主版本别名自动更新。
 mathjax_path = "https://cdn.jsdelivr.net/npm/mathjax@4.1.3/tex-mml-chtml.js"
