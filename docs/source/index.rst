@@ -14,6 +14,10 @@ JaxonZhu · 具身智能笔记
 
 这里记录我的 VLA 论文阅读、源码分析和模型实践，以及智能体强化学习与 LeRobot 学习笔记。
 
+.. container:: random-article
+
+   :doc:`从一篇实践记录开始 → <Evo-1-aloha-finetune>`
+
 我目前关注的方向：
 
 - 跟踪 VLA 模型进展，复现公开 benchmark。
