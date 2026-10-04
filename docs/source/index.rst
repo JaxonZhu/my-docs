@@ -64,6 +64,16 @@ JaxonZhu · 具身智能笔记
    index-LWD-HEAD
    index-LingBot-VA-HEAD
    index-Jetson-PI-HEAD
+   index-Harness-VLA-HEAD
+   index-GigaWorld-Policy-HEAD
+   index-FastWAM-HEAD
+   index-EPIC-KITCHENS-HEAD
+   index-EgoVLA-HEAD
+   index-EgoVerse-HEAD
+   index-EgoMimic-HEAD
+   index-EgoLive-HEAD
+   index-Cortex-HEAD
+   index-AoE-HEAD
    index-Evo-1-HEAD
    index-NORA-HEAD
    index-HiORS-HEAD

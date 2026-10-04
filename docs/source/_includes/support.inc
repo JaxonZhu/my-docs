@@ -1,11 +1,10 @@
 .. raw:: html
 
-   <details class="support-note" id="support-me">
-   <summary>
+   <section class="support-note" id="support-me" aria-labelledby="support-note-title">
+   <h3 class="support-note-title" id="support-note-title">
      <span class="support-note-heart" aria-hidden="true">♡</span>
      <span>支持这份笔记</span>
-     <span class="support-note-toggle" aria-hidden="true"></span>
-   </summary>
+   </h3>
    <div class="support-note-body">
 
 如果这里的论文解读、源码拆解或实践记录帮你少走了一点弯路，欢迎自愿支持这份笔记。
@@ -32,4 +31,4 @@
 .. raw:: html
 
    </div>
-   </details>
+   </section>

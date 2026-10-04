@@ -65,7 +65,7 @@ make -C docs serve
 
 首页的“随机逛一篇”从首页目录可达的末级文章中随机选择，跳过首页和包含下级目录的栏目页。新增文章接入现有目录后，下次构建会自动加入候选列表，不需要手工维护链接。浏览器未启用 JavaScript 时，该位置保留一篇实践记录的普通链接。
 
-首页“联系我”下方的“支持这份笔记”使用原生折叠面板，关闭 JavaScript 也能展开。文案在 `docs/source/_includes/support.inc`，样式在 `docs/source/_static/support.css`。微信赞赏码原图保存在 `docs/source/images/personal_page/wechat-appreciation.jpg`，页面中的图片和“查看赞赏码原图”均链接到构建后的 `_images/wechat-appreciation.jpg`，方便手机读者打开保存。更换赞赏码时保留原图完整边缘，不重绘或裁剪二维码；若修改文件名，同步更新图片引用和两处原图链接。该面板只展示图片，不查询到账状态；更新后需重新构建、检查原图链接，并用微信实际验证扫码。
+首页“联系我”下方的“支持这份笔记”直接展示文案和微信赞赏码，无需点击展开，也不依赖 JavaScript。文案在 `docs/source/_includes/support.inc`，样式在 `docs/source/_static/support.css`。微信赞赏码原图保存在 `docs/source/images/personal_page/wechat-appreciation.jpg`，页面中的图片和“查看赞赏码原图”均链接到构建后的 `_images/wechat-appreciation.jpg`，方便手机读者打开保存。更换赞赏码时保留原图完整边缘，不重绘或裁剪二维码；若修改文件名，同步更新图片引用和两处原图链接。该面板只展示图片，不查询到账状态；更新后需重新构建、检查原图链接，并用微信实际验证扫码。
 
 ## 文件放在哪里
 
@@ -202,6 +202,38 @@ Evo-1 网络结构。
 - 普通段落前不要无意多缩进四个空格，否则可能被识别成代码块；列表里的公式、图片要和所属条目保持正确缩进。
 - 检查公式是否出现红色错误、未解析的 LaTeX 命令或溢出；检查图片是否缺失、变形、图题与正文错位。
 - 使用 Markdown 文本补充截图中的关键结论，方便搜索和辅助阅读。
+
+## 使用聚合图床上传新增配图
+
+新增图片可以上传到聚合图床，再把返回的 HTTPS 原图链接写进文章。已有本地图片可以继续使用原路径。
+
+仓库提供 `scripts/upload_superbed.py`，只依赖 Python 3 和 curl（macOS 自带），每次上传一张图片：
+
+```bash
+cd /Users/jaxonzhu/my-docs
+python3 scripts/upload_superbed.py "/你的图片绝对路径/architecture.png" \
+  --folder "blog/2026/article-name" \
+  --alt "模型整体结构"
+```
+
+脚本会提示输入 API Key，输入时不显示字符；密钥仅用于本次请求，不写入文件，也不放进 curl 的进程参数。成功后输出一行 Markdown，直接粘贴到文章中。需要单独的原图链接时添加 `--url-only`。脚本也支持从 `SUPERBED_API_KEY` 环境变量读取密钥，但不要把实际密钥写进仓库、命令示例或共享配置。
+
+接口使用 `POST https://www.superbed.cn/upload`，通过 multipart 表单发送 `file`、`token` 和 `categories`。`categories` 是图床文件夹路径，不存在时由服务自动创建。此处采用已实际验证成功的 token 表单方式；本次请求头 `X-API-Key` 方式返回了 `Missing API key`。
+
+如使用 PicGo，在安装 `web-uploader` 插件后配置：API 地址为 `https://www.superbed.cn/upload`，POST 参数名为 `file`，JSON 路径为 `url`，自定义 Body 为 `{"token":"仅在本机填写你的 API Key","categories":"blog"}`，保存并设为默认图床。[聚合图床官方帮助](https://www.superbed.cn/help)
+
+需要图题时，将原图链接放进 MyST figure 指令：
+
+````markdown
+```{figure} https://图床返回的实际图片链接
+:alt: 模型整体结构
+:width: 90%
+
+模型整体结构。
+```
+````
+
+使用 API 返回的原图 URL，不要改成浏览器跳转后的 CDN 地址；无需添加缩放或转码参数。发布前通过 `make -C docs serve` 检查文章中的图片，特别是公式截图和细小文字，并在发布后检查线上页面。当前 `check_docs.py` 跳过远程资源，因此构建通过不能证明外链可访问；在文章页面中预览也能检查防盗链限制。
 
 ## 日常更新和发布
 
