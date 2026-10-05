@@ -71,8 +71,9 @@ make -C docs serve
 
 | 路径 | 用途 |
 | --- | --- |
-| `docs/source/index.rst` | 首页介绍和顶层栏目导航 |
-| `docs/source/index-主题-HEAD.rst` | 栏目介绍及文章目录 |
+| `docs/source/index.rst` | 首页介绍和八类文章的导航 |
+| `docs/source/category-*.rst` | 分类介绍及文章目录，每篇正文只登记一次 |
+| `docs/source/index-主题-HEAD.rst` | 保留的主题与系列导读，使用普通链接关联文章 |
 | `docs/source/*.md` | 文章正文 |
 | `docs/source/images/主题/` | 文章配图 |
 | `docs/source/conf.py` | Sphinx、MyST、主题及数学设置 |
@@ -84,32 +85,47 @@ make -C docs serve
 
 不要把草稿、占位模板和测试页放进 `docs/source/`。Sphinx 会扫描该目录里的文档，即使没有把它们加入导航，也可能产生警告。
 
-## 给已有栏目添加文章
+## 给分类添加文章
 
 1. 新建例如 `docs/source/Evo-1-new-note.md`，用一个一级标题作为文章标题，其后按 `##`、`###` 组织内容。标题采用“模型或工具名 + 内容类型：具体主题”，如“Evo-1 实践记录：ALOHA 仿真插入任务微调”。内容类型按实际内容选择论文解读、模型卡解读、源码分析、实践记录、数据流程图解或工具笔记；兼有论文与代码分析时使用“论文与源码解读”。论文英文原题放在正文开头，便于对照检索。
 2. 图片放在 `docs/source/images/Evo-1/`，使用相对路径引用。
-3. 打开 `docs/source/index-Evo-1-HEAD.rst`，在 `.. toctree::` 的条目里添加文件名（不含 `.md`），与已有条目保持缩进一致：
+3. 按文章最突出的贡献选择一个分类，在对应文件的 `.. toctree::` 中添加文件名（不含扩展名），与已有条目保持缩进一致。分类固定为以下八类：
+
+| 分类 | 目录文件 | 主要内容 |
+| --- | --- | --- |
+| 数据集 | `category-datasets.rst` | 数据资源、覆盖范围、标注与质量 |
+| 数据管线 | `category-data-pipelines.rst` | 采集、标注、筛选、读取、混合与采样 |
+| Benchmark | `category-benchmarks.rst` | 评测任务、指标、协议与基准 |
+| 模型 | `category-models.rst` | 模型架构、表征、预训练模型与结构源码分析 |
+| 算法 | `category-algorithms.rst` | 学习目标、优化规则、后训练与推理时动作选择 |
+| 经验分析 | `category-empirical-analysis.rst` | 研究问题、受控实验、经验规律与适用边界 |
+| 推理部署工程 | `category-inference-deployment.rst` | 推理、异步执行、系统编排与分布式训练部署闭环 |
+| 个人实践 | `category-personal-practice.rst` | 自己的实验、复现、训练评测和工具学习笔记 |
+
+例如，新的 Evo-1 微调实践登记到 `category-personal-practice.rst`：
 
 ```rst
 .. toctree::
    :maxdepth: 1
-   :caption: 文章目录
 
-   Evo-1-paper
+   Evo-1-aloha-finetune
    Evo-1-new-note
 ```
 
-4. 执行严格构建，并在浏览器里确认文章出现在左侧目录中。
+4. 同一系列按篇分类。例如，Evo-1 的论文与网络源码分析归入模型，数据读取流程归入数据管线，微调记录归入个人实践。每篇正文只进入一个分类的 `toctree`；RoboReward 归入 Benchmark。
+5. 如已有相关的主题导读，可添加普通 `:doc:` 链接方便串联阅读。执行严格构建，并在浏览器里确认文章出现在对应分类下。
 
-## 添加一个新栏目
+## 维护主题与系列导读
 
-复制 `docs/templates/index-project-name-HEAD.rst` 到 `docs/source/index-MyTopic-HEAD.rst`，替换模板中的栏目标题、介绍、目录标题和占位文章名；创建实际对应的 Markdown 文章。
+已有的 `index-主题-HEAD.rst` 保留原页面地址与导读内容，使用普通 `:doc:` 链接串联相关笔记。它们带有 `:orphan:` 元数据，独立于主导航，不再用 `toctree` 重复收录文章。首页与分类页共同维护唯一的分类树，因此面包屑、上一篇／下一篇和“随机逛一篇”都沿分类目录工作。
 
-栏目标题应体现内容范围：单篇论文使用“项目名 论文导读”，同时包含代码或实践记录时使用“项目名 阅读与源码分析”或“项目名 阅读与实践”；栏目内目录标题统一为“文章目录”。
+需要补充系列导读时，复制 `docs/templates/index-project-name-HEAD.rst` 到 `docs/source/index-MyTopic-HEAD.rst`，替换标题、介绍和占位文章链接。正文仍登记到对应分类；新导读通过相关正文或已有导读中的普通链接提供入口。
+
+导读标题应体现内容范围：单篇论文使用“项目名 论文导读”，同时包含代码或实践记录时使用“项目名 阅读与源码分析”或“项目名 阅读与实践”；关联文章列表标题统一为“相关笔记”。
 
 栏目导读通常写两个短段，约 100–180 字：先说明这项工作解决什么问题，再交代自己的关注点和正文的阅读重点。多篇文章的栏目可以提示阅读顺序，让读者快速找到需要的内容。完整英文论文题目放在文章开头；公式推导、实现细节和实验解释放进正文相应位置。导读中独有的实践经验、对比和疑问也应保留到正文，并区分个人判断与论文结论，避免为缩短导读而直接删掉。
 
-接着在 `docs/source/index.rst` 的对应 `toctree` 里登记 `index-MyTopic-HEAD`。栏目页、文章文件和目录条目必须匹配，区分大小写。不要保留指向不存在文档的占位条目。
+导读中的文章链接、分类目录条目与实际文件名必须匹配，区分大小写。不要保留指向不存在文档的占位条目。
 
 RST 标题紧接下一行用同一符号写下划线；下划线不能比标题的显示宽度短。现有栏目统一使用较长的下划线，新标题变长时也要相应延长。不要随意改变同一文档中各标题级别使用的符号。
 
@@ -256,7 +272,7 @@ make -C docs serve
 git diff --check
 git diff
 git status --short
-git add docs/source/Evo-1-new-note.md docs/source/index-Evo-1-HEAD.rst docs/source/images/Evo-1/
+git add docs/source/Evo-1-new-note.md docs/source/category-personal-practice.rst docs/source/images/Evo-1/
 git commit -m "Add Evo-1 notes"
 git push origin main
 ```

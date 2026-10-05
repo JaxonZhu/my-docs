@@ -48,60 +48,20 @@ JaxonZhu · 具身智能笔记
 
    .. include:: _includes/support.inc
 
-================================
+按分类阅读
+--------------------------------------------------------------------------------
+
+文章按最突出的贡献归入一个类别。同一模型或系列的论文、源码分析和实践记录，可以分别出现在不同分类中。
 
 .. toctree::
-   :maxdepth: 1
-   :caption: VLA 阅读与实践
+   :maxdepth: 2
+   :caption: 文章分类
 
-   index-Pi-x-VLA-HEAD
-   index-Xiaomi-Robotics-0-HEAD
-   index-TrAct-HEAD
-   index-SOP-HEAD
-   index-SCIZOR-HEAD
-   index-RoboDojo-HEAD
-   index-RL-Token-HEAD
-   index-LWD-HEAD
-   index-LingBot-VA-HEAD
-   index-Jetson-PI-HEAD
-   index-Harness-VLA-HEAD
-   index-GigaWorld-Policy-HEAD
-   index-FastWAM-HEAD
-   index-EPIC-KITCHENS-HEAD
-   index-EgoVLA-HEAD
-   index-EgoVerse-HEAD
-   index-EgoMimic-HEAD
-   index-EgoLive-HEAD
-   index-Cortex-HEAD
-   index-AoE-HEAD
-   index-Evo-1-HEAD
-   index-NORA-HEAD
-   index-HiORS-HEAD
-   index-iRe-VLA-HEAD
-   index-RLinfVLA-HEAD
-   index-GR-RL-HEAD
-   index-ACG-HEAD
-   index-OTR-HEAD
-   index-AILOT-HEAD
-   index-RoboDopamine-HEAD
-   index-RoboReward-HEAD
-   index-LingBot-Depth-HEAD
-   index-InternVLA-A1-HEAD
-   index-RoboChemist-HEAD
-   index-MemER-HEAD
-   index-MemoryVLA-HEAD
-   index-mimic-video-HEAD
-   index-Dit4Dit-HEAD
-   index-CosmosPolicy-HEAD
-
-.. toctree::
-   :maxdepth: 1
-   :caption: 智能体强化学习
-
-   index-DISTRL-HEAD
-
-.. toctree::
-   :maxdepth: 1
-   :caption: LeRobot 工具笔记
-
-   lerobotindex-Terminal-Implementation-Principle
+   category-datasets
+   category-data-pipelines
+   category-benchmarks
+   category-models
+   category-algorithms
+   category-empirical-analysis
+   category-inference-deployment
+   category-personal-practice
