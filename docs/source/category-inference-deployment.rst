@@ -6,6 +6,7 @@
 .. toctree::
    :maxdepth: 1
 
+   Agent-as-Policy-paper
    Cortex-paper
    DISTRL-paper
    Harness-VLA-paper
