@@ -17,6 +17,8 @@
    InternVLA-A1-model-PartA
    LingBot-Depth-paper
    LingBot-VA-paper
+   ManiGaussian-paper
+   ManiGaussian-plusplus-paper
    MemER-paper
    MemoryVLA-paper
    NORA-1-paper
