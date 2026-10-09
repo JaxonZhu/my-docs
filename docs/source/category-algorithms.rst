@@ -18,4 +18,5 @@
    RL-Token-paper
    Robo-Dopamine-paper
    TrAct-paper
+   VLA-AD-paper
    iRe-VLA-paper

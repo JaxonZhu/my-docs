@@ -11,6 +11,7 @@
    EgoVLA-paper
    Evo-1-paper
    Evo-1-networks
+   Facet-0-paper
    GigaWorld-Policy-paper
    InternVLA-A1-paper
    InternVLA-A1-model-PartA
