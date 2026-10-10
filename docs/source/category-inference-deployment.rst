@@ -11,6 +11,7 @@
    DISTRL-paper
    Harness-VLA-paper
    Jetson-PI-paper
+   OpenRUA-paper
    RLinf-VLA-paper
    RoboChemist-paper
    SOP-paper

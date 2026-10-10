@@ -24,5 +24,6 @@
    NORA-1-paper
    Pi-05
    Pi-06-model-card
+   Qwen-VLA-paper
    Xiaomi-Robotics-0-paper
    mimic-video-paper
